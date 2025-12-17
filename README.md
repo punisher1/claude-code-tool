@@ -1,2 +1,118 @@
-# claude-code-tool
-Claude Code Api Switch Tool, cli application
+# claude-code-tool (cct)
+
+Claude Code API 切换工具 - 一个 CLI 应用程序，用于管理和切换 claudecode 工具的不同 API 提供商。
+
+## 功能
+
+- **多提供商支持**：轻松切换 Anthropic 官方 API 和第三方兼容提供商（DeepSeek、Kimi/Moonshot、智谱 GLM 等）
+- **自定义提供商**：添加和管理自定义 API 提供商
+- **配置管理**：创建和管理多个 API 配置实例
+- **一键切换**：快速激活不同的 API 配置
+
+## 安装
+
+```bash
+cargo build --release
+```
+
+可执行文件将生成在 `target/release/cct` (Windows 上为 `cct.exe`)
+
+或者下载预编译版本并添加到系统 PATH 中。
+
+## 使用方法
+
+### 列出所有提供商
+```bash
+cct provider list
+```
+
+### 添加自定义提供商
+```bash
+cct provider add [name]
+# 或使用交互模式
+cct provider add
+```
+
+### 删除自定义提供商
+```bash
+cct provider rm <name>
+```
+
+### 添加 API 配置
+```bash
+cct add -p <provider> -k <api_key> <alias>
+# 例如
+cct add -p deepseek -k sk-xxx my-deepseek
+```
+
+### 使用配置
+```bash
+cct use <alias>
+# 例如
+cct use my-deepseek
+```
+
+## 文件位置
+
+- 配置文件：`~/.claude-code-tool/config.toml` (macOS/Linux) 或 `%USERPROFILE%\.claude-code-tool\config.toml` (Windows)
+- Claude 设置：`~/.claude/settings.json` (macOS/Linux) 或 `%USERPROFILE%\.claude\settings.json` (Windows)
+
+## 支持的提供商
+
+### 内置提供商
+- **claude-code** - Anthropic Claude Code (官方版)
+- **deepseek** - DeepSeek API
+- **kimi-coding** - Kimi for Coding (Moonshot API)
+- **zhipu** - 智谱 GLM API
+
+### 自定义提供商
+支持添加任何兼容 Anthropic API 格式的第三方提供商。
+
+## 技术特性
+
+### 环境变量类型支持
+配置文件中的环境变量支持三种类型：
+- **字符串 (String)**: 适用于 URL、API 密钥等文本值
+- **整数 (Int)**: 适用于数值类型的配置，如超时时间、标志位等
+- **布尔值 (Bool)**: 适用于 true/false 配置选项
+
+示例配置：
+```toml
+[providers.deepseek]
+description = "DeepSeek API"
+env.ANTHROPIC_BASE_URL = "https://api.deepseek.com"
+env.ANTHROPIC_MODEL = "deepseek-chat"
+env.API_TIMEOUT_MS = 3000000  # 整数类型
+env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = 1  # 整数标志位
+```
+
+## 开发
+
+### 运行测试
+```bash
+cargo test
+```
+
+### 开发构建
+```bash
+cargo build
+```
+
+### 发布构建
+```bash
+cargo build --release
+```
+
+### 代码格式化
+```bash
+cargo fmt
+```
+
+### 代码检查
+```bash
+cargo clippy
+```
+
+## 许可证
+
+MIT License

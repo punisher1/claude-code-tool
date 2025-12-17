@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cargo test:*)",
+      "Bash(cargo build:*)",
+      "Bash(./target/release/cct:*)",
+      "Bash(./target/debug/cct:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

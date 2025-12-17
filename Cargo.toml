@@ -1,0 +1,33 @@
+[package]
+name = "cct"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.9.8"
+dirs = "6.0.0"
+anyhow = "1.0"
+thiserror = "2.0.17"
+dialoguer = "0.12.0"
+console = "0.16.2"
+env_logger = "0.11"
+log = "0.4"
+lazy_static = "1.4"
+
+[dev-dependencies]
+tempfile = "3.8"
+
+[profile.release]
+# 优化级别：z 表示优化大小
+opt-level = "z"
+# 启用链接时优化（LTO）
+lto = true
+# 减少代码生成单元数以增加优化机会
+codegen-units = 1
+# 移除符号信息
+strip = true
+# 启用更激进的内联
+panic = "abort"
