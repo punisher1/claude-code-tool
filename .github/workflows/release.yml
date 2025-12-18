@@ -80,9 +80,10 @@ jobs:
           cd -
 
       - name: Generate checksum
+        shell: bash
         run: |
           if [[ "${{ matrix.platform.os }}" == "windows-latest" ]]; then
-            certutil -hashfile ${{ matrix.platform.name }} SHA256 | grep -E "^[0-9a-fA-F]{64}$" > ${{ matrix.platform.name }}.sha256
+            certutil -hashfile ${{ matrix.platform.name }} SHA256 | sed -n '2p' | tr -d '\r' > ${{ matrix.platform.name }}.sha256
           else
             shasum -a 256 ${{ matrix.platform.name }} > ${{ matrix.platform.name }}.sha256
           fi
