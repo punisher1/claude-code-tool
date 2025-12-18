@@ -1,1 +1,6 @@
 /target
+/.claude
+/.vscode
+/docs
+/CLAUDE.md
+/GEMINI.md
