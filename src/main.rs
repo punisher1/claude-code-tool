@@ -49,6 +49,7 @@ enum Commands {
 #[derive(Subcommand)]
 enum ProviderSubCommand {
     /// List all available providers
+    #[command(alias = "ls")]
     List,
 
     /// Add a custom provider
