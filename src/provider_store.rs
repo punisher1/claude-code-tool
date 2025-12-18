@@ -14,13 +14,27 @@ lazy_static! {
 
         // DeepSeek
         let mut deepseek_env = HashMap::new();
-        deepseek_env.insert("ANTHROPIC_BASE_URL".to_string(), crate::models::EnvValue::String("https://api.deepseek.com/anthropic".to_string()));
-        deepseek_env.insert("ANTHROPIC_MODEL".to_string(), crate::models::EnvValue::String("deepseek-chat".to_string()));
-        deepseek_env.insert("ANTHROPIC_DEFAULT_HAIKU_MODEL".to_string(), crate::models::EnvValue::String("deepseek-chat".to_string()));
-        deepseek_env.insert("ANTHROPIC_DEFAULT_SONNET_MODEL".to_string(), crate::models::EnvValue::String("deepseek-chat".to_string()));
-        deepseek_env.insert("ANTHROPIC_DEFAULT_OPUS_MODEL".to_string(), crate::models::EnvValue::String("deepseek-chat".to_string()));
-        deepseek_env.insert("API_TIMEOUT_MS".to_string(), crate::models::EnvValue::String("3000000".to_string()));
-        deepseek_env.insert("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC".to_string(), crate::models::EnvValue::Int(1));
+        deepseek_env.insert(
+            "ANTHROPIC_BASE_URL".to_string(),
+            crate::models::EnvValue::String("https://api.deepseek.com/anthropic".to_string()));
+        deepseek_env.insert(
+            "ANTHROPIC_MODEL".to_string(),
+            crate::models::EnvValue::String("deepseek-chat".to_string()));
+        deepseek_env.insert(
+            "ANTHROPIC_DEFAULT_HAIKU_MODEL".to_string(),
+            crate::models::EnvValue::String("deepseek-chat".to_string()));
+        deepseek_env.insert(
+            "ANTHROPIC_DEFAULT_SONNET_MODEL".to_string(),
+            crate::models::EnvValue::String("deepseek-chat".to_string()));
+        deepseek_env.insert(
+            "ANTHROPIC_DEFAULT_OPUS_MODEL".to_string(),
+            crate::models::EnvValue::String("deepseek-chat".to_string()));
+        deepseek_env.insert(
+            "API_TIMEOUT_MS".to_string(),
+            crate::models::EnvValue::Int(3000000));
+        deepseek_env.insert(
+            "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC".to_string(),
+            crate::models::EnvValue::Int(1));
 
         providers.insert("deepseek".to_string(), Provider {
             description: Some("DeepSeek API".to_string()),
@@ -29,13 +43,20 @@ lazy_static! {
 
         // Kimi/Moonshot
         let mut kimi_env = HashMap::new();
-        kimi_env.insert("ANTHROPIC_BASE_URL".to_string(), crate::models::EnvValue::String("https://api.kimi.com/coding".to_string()));
-        kimi_env.insert("ANTHROPIC_MODEL".to_string(), crate::models::EnvValue::String("kimi-for-coding".to_string()));
-        kimi_env.insert("ANTHROPIC_DEFAULT_HAIKU_MODEL".to_string(), crate::models::EnvValue::String("kimi-for-coding".to_string()));
-        kimi_env.insert("ANTHROPIC_DEFAULT_SONNET_MODEL".to_string(), crate::models::EnvValue::String("kimi-for-coding".to_string()));
-        kimi_env.insert("ANTHROPIC_DEFAULT_OPUS_MODEL".to_string(), crate::models::EnvValue::String("kimi-for-coding".to_string()));
-        kimi_env.insert("API_TIMEOUT_MS".to_string(), crate::models::EnvValue::String("3000000".to_string()));
-        kimi_env.insert("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC".to_string(), crate::models::EnvValue::Int(1));
+        kimi_env.insert("ANTHROPIC_BASE_URL".to_string(),
+            crate::models::EnvValue::String("https://api.kimi.com/coding".to_string()));
+        kimi_env.insert("ANTHROPIC_MODEL".to_string(),
+            crate::models::EnvValue::String("kimi-for-coding".to_string()));
+        kimi_env.insert("ANTHROPIC_DEFAULT_HAIKU_MODEL".to_string(),
+            crate::models::EnvValue::String("kimi-for-coding".to_string()));
+        kimi_env.insert("ANTHROPIC_DEFAULT_SONNET_MODEL".to_string(),
+            crate::models::EnvValue::String("kimi-for-coding".to_string()));
+        kimi_env.insert("ANTHROPIC_DEFAULT_OPUS_MODEL".to_string(),
+            crate::models::EnvValue::String("kimi-for-coding".to_string()));
+        kimi_env.insert("API_TIMEOUT_MS".to_string(),
+            crate::models::EnvValue::Int(3000000));
+        kimi_env.insert("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC".to_string(),
+            crate::models::EnvValue::Int(1));
 
         providers.insert("kimi-coding".to_string(), Provider {
             description: Some("Kimi Coding API".to_string()),
@@ -44,13 +65,20 @@ lazy_static! {
 
         // Zhipu GLM
         let mut zhipu_env = HashMap::new();
-        zhipu_env.insert("ANTHROPIC_BASE_URL".to_string(), crate::models::EnvValue::String("https://open.bigmodel.cn/api/anthropic".to_string()));
-        zhipu_env.insert("ANTHROPIC_MODEL".to_string(), crate::models::EnvValue::String("glm-4.6".to_string()));
-        zhipu_env.insert("ANTHROPIC_DEFAULT_HAIKU_MODEL".to_string(), crate::models::EnvValue::String("glm-4.5-air".to_string()));
-        zhipu_env.insert("ANTHROPIC_DEFAULT_SONNET_MODEL".to_string(), crate::models::EnvValue::String("glm-4.6".to_string()));
-        zhipu_env.insert("ANTHROPIC_DEFAULT_OPUS_MODEL".to_string(), crate::models::EnvValue::String("glm-4.6".to_string()));
-        zhipu_env.insert("API_TIMEOUT_MS".to_string(), crate::models::EnvValue::String("3000000".to_string()));
-        zhipu_env.insert("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC".to_string(), crate::models::EnvValue::Int(1));
+        zhipu_env.insert("ANTHROPIC_BASE_URL".to_string(),
+            crate::models::EnvValue::String("https://open.bigmodel.cn/api/anthropic".to_string()));
+        zhipu_env.insert("ANTHROPIC_MODEL".to_string(),
+            crate::models::EnvValue::String("glm-4.6".to_string()));
+        zhipu_env.insert("ANTHROPIC_DEFAULT_HAIKU_MODEL".to_string(),
+            crate::models::EnvValue::String("glm-4.5-air".to_string()));
+        zhipu_env.insert("ANTHROPIC_DEFAULT_SONNET_MODEL".to_string(),
+            crate::models::EnvValue::String("glm-4.6".to_string()));
+        zhipu_env.insert("ANTHROPIC_DEFAULT_OPUS_MODEL".to_string(),
+            crate::models::EnvValue::String("glm-4.6".to_string()));
+        zhipu_env.insert("API_TIMEOUT_MS".to_string(),
+            crate::models::EnvValue::Int(3000000));
+        zhipu_env.insert("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC".to_string(),
+            crate::models::EnvValue::Int(1));
 
         providers.insert("zhipu".to_string(), Provider {
             description: Some("Zhipu GLM API".to_string()),
@@ -104,7 +132,10 @@ mod tests {
 
         // Add a custom provider
         let mut custom_env = HashMap::new();
-        custom_env.insert("ANTHROPIC_BASE_URL".to_string(), EnvValue::String("https://custom.api.com".to_string()));
+        custom_env.insert(
+            "ANTHROPIC_BASE_URL".to_string(),
+            EnvValue::String("https://custom.api.com".to_string()),
+        );
         let custom_provider = Provider {
             description: Some("Custom Provider".to_string()),
             env: Some(custom_env),
@@ -120,7 +151,14 @@ mod tests {
 
         // Verify custom provider exists
         assert!(merged.contains_key("custom"));
-        if let Some(EnvValue::String(url)) = merged.get("custom").unwrap().env.as_ref().unwrap().get("ANTHROPIC_BASE_URL") {
+        if let Some(EnvValue::String(url)) = merged
+            .get("custom")
+            .unwrap()
+            .env
+            .as_ref()
+            .unwrap()
+            .get("ANTHROPIC_BASE_URL")
+        {
             assert_eq!(url, "https://custom.api.com");
         } else {
             panic!("Expected string value for ANTHROPIC_BASE_URL");
@@ -133,7 +171,10 @@ mod tests {
 
         // Try to override a built-in provider
         let mut override_env = HashMap::new();
-        override_env.insert("ANTHROPIC_BASE_URL".to_string(), EnvValue::String("https://new.deepseek.com".to_string()));
+        override_env.insert(
+            "ANTHROPIC_BASE_URL".to_string(),
+            EnvValue::String("https://new.deepseek.com".to_string()),
+        );
         let override_provider = Provider {
             description: Some("Updated DeepSeek".to_string()),
             env: Some(override_env),

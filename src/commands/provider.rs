@@ -7,11 +7,32 @@ use anyhow::Result;
 use console::style;
 use dialoguer::Input;
 use std::collections::HashMap;
+use tabled::{Table, Tabled};
 
 pub enum ProviderCommand {
     List,
     Add { name: Option<String> },
     Remove { name: String },
+}
+
+#[derive(Tabled)]
+struct ProviderRow {
+    #[tabled(rename = "名称")]
+    name: String,
+    #[tabled(rename = "类型")]
+    provider_type: String,
+    #[tabled(rename = "描述")]
+    description: String,
+    #[tabled(rename = "基础URL")]
+    base_url: String,
+    #[tabled(rename = "默认模型")]
+    model: String,
+    #[tabled(rename = "Haiku模型")]
+    haiku_model: String,
+    #[tabled(rename = "Sonnet模型")]
+    sonnet_model: String,
+    #[tabled(rename = "Opus模型")]
+    opus_model: String,
 }
 
 impl Command for ProviderCommand {
@@ -27,40 +48,66 @@ impl Command for ProviderCommand {
 fn list_providers(config: &AppConfig) -> Result<()> {
     let merged = ProviderStore::get_merged_providers(&config.providers).map_err(|e| anyhow::anyhow!("{}", e))?;
 
-    println!("\n{}\n", style("Available Providers:").bold().underlined());
+    let mut rows = Vec::new();
 
     for (name, provider) in &merged {
         let provider_type = if ProviderStore::is_builtin_provider(name) {
-            style("Built-in").green()
+            "内置"
         } else {
-            style("Custom").yellow()
+            "自定义"
+        }.to_string();
+
+        let description = provider.description.clone().unwrap_or_else(|| "-".to_string());
+
+        let base_url = if let Some(env) = &provider.env {
+            env.get("ANTHROPIC_BASE_URL").map(|v| v.to_string()).unwrap_or_else(|| "-".to_string())
+        } else {
+            "-".to_string()
         };
 
-        println!("{} {}", style(name).bold(), provider_type);
+        let model = if let Some(env) = &provider.env {
+            env.get("ANTHROPIC_MODEL").map(|v| v.to_string()).unwrap_or_else(|| "-".to_string())
+        } else {
+            "-".to_string()
+        };
 
-        if let Some(description) = &provider.description {
-            println!("  {}", style(description).dim());
-        }
+        let haiku_model = if let Some(env) = &provider.env {
+            env.get("ANTHROPIC_DEFAULT_HAIKU_MODEL").map(|v| v.to_string()).unwrap_or_else(|| "-".to_string())
+        } else {
+            "-".to_string()
+        };
 
-        if let Some(env) = &provider.env {
-            if let Some(base_url) = env.get("ANTHROPIC_BASE_URL") {
-                println!("  BASE_URL: {}", style(base_url).dim());
-            }
-            if let Some(model) = env.get("ANTHROPIC_MODEL") {
-                println!("  Model: {}", style(model).cyan());
-            }
-            if let Some(model) = env.get("ANTHROPIC_DEFAULT_HAIKU_MODEL") {
-                println!("  Default Haiku Model: {}", style(model).cyan());
-            }
-            if let Some(model) = env.get("ANTHROPIC_DEFAULT_SONNET_MODEL") {
-                println!("  Default Sonnet Model: {}", style(model).cyan());
-            }
-            if let Some(model) = env.get("ANTHROPIC_DEFAULT_OPUS_MODEL") {
-                println!("  Default Opus Model: {}", style(model).cyan());
-            }
-        }
-        println!();
+        let sonnet_model = if let Some(env) = &provider.env {
+            env.get("ANTHROPIC_DEFAULT_SONNET_MODEL").map(|v| v.to_string()).unwrap_or_else(|| "-".to_string())
+        } else {
+            "-".to_string()
+        };
+
+        let opus_model = if let Some(env) = &provider.env {
+            env.get("ANTHROPIC_DEFAULT_OPUS_MODEL").map(|v| v.to_string()).unwrap_or_else(|| "-".to_string())
+        } else {
+            "-".to_string()
+        };
+
+        rows.push(ProviderRow {
+            name: name.clone(),
+            provider_type,
+            description,
+            base_url,
+            model,
+            haiku_model,
+            sonnet_model,
+            opus_model,
+        });
     }
+
+    if rows.is_empty() {
+        println!("{}", style("暂无提供商配置").dim());
+        return Ok(());
+    }
+
+    let table = Table::new(rows);
+    println!("{}", table);
 
     Ok(())
 }
