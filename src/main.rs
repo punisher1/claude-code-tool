@@ -7,7 +7,7 @@ mod utils;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use commands::{Command, config::AddCommand, provider::ProviderCommand, switch::UseCommand};
+use commands::{Command, AddCommand, ListCommand, ProviderCommand, UseCommand};
 use config_manager::ConfigManager;
 
 #[derive(Parser)]
@@ -38,6 +38,10 @@ enum Commands {
         #[arg(short, long)]
         api_key: String,
     },
+
+    /// List all configurations
+    #[command(alias = "ls")]
+    List,
 
     /// Use a configuration
     Use {
@@ -92,6 +96,10 @@ fn main() -> Result<()> {
                 provider,
                 api_key,
             };
+            cmd.execute(&mut config)?;
+        }
+        Commands::List => {
+            let cmd = ListCommand;
             cmd.execute(&mut config)?;
         }
         Commands::Use { alias } => {

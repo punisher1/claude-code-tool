@@ -4,7 +4,7 @@ use std::process::Command;
 #[test]
 fn test_provider_list_runs() {
     let output = Command::new("cargo")
-        .args(&["run", "--", "provider", "list"])
+        .args(["run", "--", "provider", "list"])
         .output()
         .expect("Failed to execute command");
 
@@ -19,7 +19,7 @@ fn test_provider_list_runs() {
 #[test]
 fn test_version() {
     let output = Command::new("cargo")
-        .args(&["run", "--", "--version"])
+        .args(["run", "--", "--version"])
         .output()
         .expect("Failed to execute command");
 
@@ -31,7 +31,7 @@ fn test_version() {
 #[test]
 fn test_help() {
     let output = Command::new("cargo")
-        .args(&["run", "--", "--help"])
+        .args(["run", "--", "--help"])
         .output()
         .expect("Failed to execute command");
 
@@ -43,7 +43,7 @@ fn test_help() {
 #[test]
 fn test_provider_ls() {
     let output = Command::new("cargo")
-        .args(&["run", "--", "provider", "ls"])
+        .args(["run", "--", "provider", "ls"])
         .output()
         .expect("Failed to execute command");
 

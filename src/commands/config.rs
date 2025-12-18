@@ -4,6 +4,7 @@ use crate::models::{AppConfig, ConfigInstance};
 use crate::provider_store::ProviderStore;
 use anyhow::{Result, anyhow};
 use console::style;
+use tabled::{Table, Tabled};
 
 pub struct AddCommand {
     pub alias: String,
@@ -45,6 +46,41 @@ impl Command for AddCommand {
             style("✓").green(),
             self.alias
         );
+
+        Ok(())
+    }
+}
+
+#[derive(Tabled)]
+struct ConfigRow {
+    #[tabled(rename = "别名")]
+    alias: String,
+    #[tabled(rename = "提供商")]
+    provider: String,
+    #[tabled(rename = "API密钥")]
+    api_key: String,
+}
+
+pub struct ListCommand;
+
+impl Command for ListCommand {
+    fn execute(self, config: &mut AppConfig) -> Result<()> {
+        if config.configs.is_empty() {
+            println!("{}", style("暂无配置").dim());
+            return Ok(());
+        }
+
+        let mut rows = Vec::new();
+        for (alias, config_instance) in &config.configs {
+            rows.push(ConfigRow {
+                alias: alias.clone(),
+                provider: config_instance.provider.clone(),
+                api_key: config_instance.api_key.clone(),
+            });
+        }
+
+        let table = Table::new(rows);
+        println!("{}", table);
 
         Ok(())
     }
