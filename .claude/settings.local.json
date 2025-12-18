@@ -5,7 +5,9 @@
       "Bash(cargo build:*)",
       "Bash(./target/release/cct:*)",
       "Bash(./target/debug/cct:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\n实现 claude-code 工具切换 CLI 应用 (cct)\n\n- 添加项目和测试代码\n- 支持多提供商 (DeepSeek, Kimi, Zhipu 等)\n- 支持环境变量类型 (String/Int/Bool)\n- 更新 README.md 文档\nEOF\n)\")",
+      "Bash(git push:*)"
     ]
   }
 }

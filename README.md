@@ -40,9 +40,9 @@ cct provider rm <name>
 
 ### 添加 API 配置
 ```bash
-cct add -p <provider> -k <api_key> <alias>
+cct add -p <provider> -a <api_key> <alias>
 # 例如
-cct add -p deepseek -k sk-xxx my-deepseek
+cct add -p deepseek -a sk-xxx my-deepseek
 ```
 
 ### 使用配置
@@ -54,7 +54,7 @@ cct use my-deepseek
 
 ## 文件位置
 
-- 配置文件：`~/.claude-code-tool/config.toml` (macOS/Linux) 或 `%USERPROFILE%\.claude-code-tool\config.toml` (Windows)
+- 配置文件：`~/.cct/config.toml` (macOS/Linux) 或 `%USERPROFILE%\.cct\config.toml` (Windows)
 - Claude 设置：`~/.claude/settings.json` (macOS/Linux) 或 `%USERPROFILE%\.claude\settings.json` (Windows)
 
 ## 支持的提供商
