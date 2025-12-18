@@ -11,13 +11,30 @@ Claude Code API 切换工具 - 一个 CLI 应用程序，用于管理和切换 c
 
 ## 安装
 
+### 从 GitHub Release 下载（推荐）
+访问 [Releases 页面](https://github.com/punisher1/claude-code-tool/releases) 下载适合您平台的预编译二进制文件：
+
+- **Linux x86_64**: `cct-Linux-x86_64.tar.gz`
+- **macOS x86_64**: `cct-Darwin-x86_64.tar.gz`
+- **macOS Apple Silicon**: `cct-Darwin-aarch64.tar.gz`
+- **Windows x86_64**: `cct-Windows-x86_64.zip`
+
+下载后解压并将二进制文件添加到系统 PATH。
+
+### 从源码构建
+
+确保已安装 Rust 工具链（1.70+），然后运行：
+
 ```bash
+# 克隆仓库
+git clone https://github.com/punisher1/claude-code-tool.git
+cd claude-code-tool
+
+# 构建发布版本
 cargo build --release
 ```
 
 可执行文件将生成在 `target/release/cct` (Windows 上为 `cct.exe`)
-
-或者下载预编译版本并添加到系统 PATH 中。
 
 ## 使用方法
 
@@ -102,6 +119,29 @@ cargo build
 ```bash
 cargo build --release
 ```
+
+### 创建 Release
+
+项目使用 GitHub Actions 自动化 release 流程。创建新版本：
+
+1. **创建并推送标签**:
+   ```bash
+   git tag v0.1.0
+   git push origin v0.1.0
+   ```
+
+2. **GitHub Actions 自动执行**:
+   - 为 Linux、macOS、Windows 构建二进制文件
+   - 创建 GitHub Release
+   - 自动生成 Release Notes
+   - 上传所有平台的二进制文件和 checksum
+
+3. **在 GitHub Release 页面查看结果**:
+   - 自动生成的 Release Notes（基于 commit 分类）
+   - 所有平台的预编译二进制文件
+   - 每个二进制文件的 SHA256 checksum
+
+release workflow 配置在 `.github/workflows/release.yml`。
 
 ### 代码格式化
 ```bash
