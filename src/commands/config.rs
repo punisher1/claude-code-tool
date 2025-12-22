@@ -4,7 +4,11 @@ use crate::models::{AppConfig, ConfigInstance};
 use crate::provider_store::ProviderStore;
 use anyhow::{Result, anyhow};
 use console::style;
-use tabled::{Table, Tabled, settings::{Style, Color}, settings::object::Rows};
+use tabled::{
+    Table, Tabled,
+    settings::object::Rows,
+    settings::{Color, Style},
+};
 
 pub struct AddCommand {
     pub alias: String,
@@ -94,19 +98,13 @@ impl Command for ListCommand {
         // 构建表格字符串
         let table_str = if let Some(row_idx) = current_row_idx {
             // 有当前激活配置，需要高亮
-            use tabled::settings::style::BorderColor;
             Table::new(&rows)
                 .with(Style::modern())
-                .modify(
-                    Rows::new(row_idx..row_idx+1),
-                    BorderColor::filled(Color::FG_GREEN)
-                )
+                .modify(Rows::new(row_idx..row_idx + 1), Color::FG_GREEN)
                 .to_string()
         } else {
             // 没有当前激活配置
-            Table::new(&rows)
-                .with(Style::modern())
-                .to_string()
+            Table::new(&rows).with(Style::modern()).to_string()
         };
 
         println!("{}", table_str);
