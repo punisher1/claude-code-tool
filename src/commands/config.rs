@@ -4,7 +4,7 @@ use crate::models::{AppConfig, ConfigInstance};
 use crate::provider_store::ProviderStore;
 use anyhow::{Result, anyhow};
 use console::style;
-use tabled::{Table, Tabled};
+use tabled::{Table, Tabled, settings::Style};
 
 pub struct AddCommand {
     pub alias: String,
@@ -70,16 +70,33 @@ impl Command for ListCommand {
             return Ok(());
         }
 
+        // 收集所有配置并按别名排序
+        let mut sorted_configs: Vec<_> = config.configs.iter().collect();
+        sorted_configs.sort_by(|a, b| a.0.cmp(b.0));
+
+        // 打印表头
+        println!("{}", Table::new(&["配置列表"]).with(Style::modern()).to_string().split('\n').next().unwrap_or(&""));
+        println!();
+
         let mut rows = Vec::new();
-        for (alias, config_instance) in &config.configs {
+        for (_i, (alias, config_instance)) in sorted_configs.iter().enumerate() {
+            // 检查是否为当前激活的配置
+            let is_current = config.current.as_ref() == Some(*alias);
+
             rows.push(ConfigRow {
-                alias: alias.clone(),
+                alias: if is_current {
+                    format!("{} {}", *alias, style("(当前)").green())
+                } else {
+                    alias.to_string()
+                },
                 provider: config_instance.provider.clone(),
                 api_key: config_instance.api_key.clone(),
             });
         }
 
-        let table = Table::new(rows);
+        let table = Table::new(&rows)
+            .with(Style::modern())
+            .to_string();
         println!("{}", table);
 
         Ok(())

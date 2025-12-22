@@ -113,6 +113,8 @@ cargo clippy
 - 使用 `cargo clippy` 检查潜在问题并修复建议
 - 公共函数和结构体添加适当文档注释（///）
 - 复杂逻辑添加行内注释说明设计意图
+- 每次改完代码都必须执行 `cargo build` 保证没有error
+- git的commit和push操作必须在我明确说明的时候才执行
 
 ### 序列化/反序列化注意事项
 - `EnvValue` 枚举需要自定义 Serialize/Deserialize 实现，支持 String/Int/Bool 三种类型
