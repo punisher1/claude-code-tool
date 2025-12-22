@@ -7,6 +7,7 @@ use anyhow::Result;
 use console::style;
 use dialoguer::Input;
 use std::collections::HashMap;
+use tabled::settings::Style;
 use tabled::{Table, Tabled};
 
 pub enum ProviderCommand {
@@ -55,38 +56,49 @@ fn list_providers(config: &AppConfig) -> Result<()> {
             "内置"
         } else {
             "自定义"
-        }.to_string();
+        }
+        .to_string();
 
         let description = provider.description.clone().unwrap_or_else(|| "-".to_string());
 
         let base_url = if let Some(env) = &provider.env {
-            env.get("ANTHROPIC_BASE_URL").map(|v| v.to_string()).unwrap_or_else(|| "-".to_string())
+            env.get("ANTHROPIC_BASE_URL")
+                .map(|v| v.to_string())
+                .unwrap_or_else(|| "".to_string())
         } else {
-            "-".to_string()
+            "".to_string()
         };
 
         let model = if let Some(env) = &provider.env {
-            env.get("ANTHROPIC_MODEL").map(|v| v.to_string()).unwrap_or_else(|| "-".to_string())
+            env.get("ANTHROPIC_MODEL")
+                .map(|v| v.to_string())
+                .unwrap_or_else(|| "".to_string())
         } else {
-            "-".to_string()
+            "".to_string()
         };
 
         let haiku_model = if let Some(env) = &provider.env {
-            env.get("ANTHROPIC_DEFAULT_HAIKU_MODEL").map(|v| v.to_string()).unwrap_or_else(|| "-".to_string())
+            env.get("ANTHROPIC_DEFAULT_HAIKU_MODEL")
+                .map(|v| v.to_string())
+                .unwrap_or_else(|| "".to_string())
         } else {
-            "-".to_string()
+            "".to_string()
         };
 
         let sonnet_model = if let Some(env) = &provider.env {
-            env.get("ANTHROPIC_DEFAULT_SONNET_MODEL").map(|v| v.to_string()).unwrap_or_else(|| "-".to_string())
+            env.get("ANTHROPIC_DEFAULT_SONNET_MODEL")
+                .map(|v| v.to_string())
+                .unwrap_or_else(|| "".to_string())
         } else {
-            "-".to_string()
+            "".to_string()
         };
 
         let opus_model = if let Some(env) = &provider.env {
-            env.get("ANTHROPIC_DEFAULT_OPUS_MODEL").map(|v| v.to_string()).unwrap_or_else(|| "-".to_string())
+            env.get("ANTHROPIC_DEFAULT_OPUS_MODEL")
+                .map(|v| v.to_string())
+                .unwrap_or_else(|| "".to_string())
         } else {
-            "-".to_string()
+            "".to_string()
         };
 
         rows.push(ProviderRow {
@@ -106,7 +118,8 @@ fn list_providers(config: &AppConfig) -> Result<()> {
         return Ok(());
     }
 
-    let table = Table::new(rows);
+    let table = Table::new(rows).with(Style::modern()).to_string();
+
     println!("{}", table);
 
     Ok(())
@@ -222,11 +235,23 @@ fn add_provider(config: &mut AppConfig, name: Option<String>) -> Result<()> {
 
     // Create env map
     let mut env = HashMap::new();
-    env.insert("ANTHROPIC_BASE_URL".to_string(), crate::models::EnvValue::String(base_url));
+    env.insert(
+        "ANTHROPIC_BASE_URL".to_string(),
+        crate::models::EnvValue::String(base_url),
+    );
     env.insert("ANTHROPIC_MODEL".to_string(), crate::models::EnvValue::String(model));
-    env.insert("ANTHROPIC_DEFAULT_HAIKU_MODEL".to_string(), crate::models::EnvValue::String(haiku_model));
-    env.insert("ANTHROPIC_DEFAULT_SONNET_MODEL".to_string(), crate::models::EnvValue::String(sonnet_model));
-    env.insert("ANTHROPIC_DEFAULT_OPUS_MODEL".to_string(), crate::models::EnvValue::String(opus_model));
+    env.insert(
+        "ANTHROPIC_DEFAULT_HAIKU_MODEL".to_string(),
+        crate::models::EnvValue::String(haiku_model),
+    );
+    env.insert(
+        "ANTHROPIC_DEFAULT_SONNET_MODEL".to_string(),
+        crate::models::EnvValue::String(sonnet_model),
+    );
+    env.insert(
+        "ANTHROPIC_DEFAULT_OPUS_MODEL".to_string(),
+        crate::models::EnvValue::String(opus_model),
+    );
 
     let provider = Provider {
         description,
