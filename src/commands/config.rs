@@ -4,7 +4,7 @@ use crate::models::{AppConfig, ConfigInstance};
 use crate::provider_store::ProviderStore;
 use anyhow::{Result, anyhow};
 use console::style;
-use tabled::{Table, Tabled, settings::Style};
+use tabled::{Table, Tabled, settings::{Style, Color}, settings::object::Rows};
 
 pub struct AddCommand {
     pub alias: String,
@@ -71,33 +71,45 @@ impl Command for ListCommand {
         }
 
         // 收集所有配置并按别名排序
+        let mut rows = Vec::new();
+        let mut current_row_idx = None;
+
+        // 先收集并排序
         let mut sorted_configs: Vec<_> = config.configs.iter().collect();
         sorted_configs.sort_by(|a, b| a.0.cmp(b.0));
 
-        // 打印表头
-        println!("{}", Table::new(&["配置列表"]).with(Style::modern()).to_string().split('\n').next().unwrap_or(&""));
-        println!();
-
-        let mut rows = Vec::new();
-        for (_i, (alias, config_instance)) in sorted_configs.iter().enumerate() {
-            // 检查是否为当前激活的配置
-            let is_current = config.current.as_ref() == Some(*alias);
-
+        for (index, (alias, config_instance)) in sorted_configs.iter().enumerate() {
             rows.push(ConfigRow {
-                alias: if is_current {
-                    format!("{} {}", *alias, style("(当前)").green())
-                } else {
-                    alias.to_string()
-                },
+                alias: alias.to_string(),
                 provider: config_instance.provider.clone(),
                 api_key: config_instance.api_key.clone(),
             });
+
+            // 记录当前激活的配置行（+1 因为第1行是表头）
+            if config.current.as_ref() == Some(*alias) {
+                current_row_idx = Some(index + 1);
+            }
         }
 
-        let table = Table::new(&rows)
-            .with(Style::modern())
-            .to_string();
-        println!("{}", table);
+        // 构建表格字符串
+        let table_str = if let Some(row_idx) = current_row_idx {
+            // 有当前激活配置，需要高亮
+            use tabled::settings::style::BorderColor;
+            Table::new(&rows)
+                .with(Style::modern())
+                .modify(
+                    Rows::new(row_idx..row_idx+1),
+                    BorderColor::filled(Color::FG_GREEN)
+                )
+                .to_string()
+        } else {
+            // 没有当前激活配置
+            Table::new(&rows)
+                .with(Style::modern())
+                .to_string()
+        };
+
+        println!("{}", table_str);
 
         Ok(())
     }
