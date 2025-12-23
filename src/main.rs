@@ -7,7 +7,7 @@ mod utils;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use commands::{Command, AddCommand, ListCommand, ProviderCommand, UseCommand, ResetCommand, RmCommand};
+use commands::{Command, AddCommand, ListCommand, ProviderCommand, UseCommand, ResetCommand, RmCommand, StartCommand};
 use config_manager::ConfigManager;
 
 #[derive(Parser)]
@@ -60,6 +60,20 @@ enum Commands {
     Rm {
         /// Configuration alias
         alias: String,
+    },
+
+    /// Start Claude Code with a configuration
+    Start {
+        /// Configuration alias
+        alias: String,
+
+        /// HTTP/HTTPS proxy URL (e.g., http://127.0.0.1:11225)
+        #[arg(long)]
+        proxy: Option<String>,
+
+        /// Arguments to pass to claude (after --)
+        #[arg(last = true, allow_hyphen_values = true)]
+        claude_args: Vec<String>,
     },
 }
 
@@ -127,6 +141,10 @@ fn main() -> Result<()> {
         }
         Commands::Rm { alias } => {
             let cmd = RmCommand { alias };
+            cmd.execute(&mut config)?;
+        }
+        Commands::Start { alias, proxy, claude_args } => {
+            let cmd = StartCommand { alias, proxy, claude_args };
             cmd.execute(&mut config)?;
         }
     }
