@@ -60,6 +60,16 @@ lazy_static! {
                 opus_model: "mimo-v2-flash",
                 env: None,
             },
+            ProviderDef {
+                name: "minimaxi-m2",
+                description: "Minimax M2 Coding",
+                base_url: "https://api.minimaxi.com/anthropic",
+                model: "MiniMax-M2",
+                haiku_model: "MiniMax-M2",
+                sonnet_model: "MiniMax-M2",
+                opus_model: "MiniMax-M2",
+                env: None,
+            },
         ];
 
         // 添加 Claude Code (无环境变量)

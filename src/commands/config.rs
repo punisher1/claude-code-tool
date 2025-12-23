@@ -83,10 +83,19 @@ impl Command for ListCommand {
         sorted_configs.sort_by(|a, b| a.0.cmp(b.0));
 
         for (index, (alias, config_instance)) in sorted_configs.iter().enumerate() {
+            // 遮盖 API 密钥，只显示前4个字符
+            let masked_api_key = if config_instance.api_key.len() > 8 {
+                let prefix = &config_instance.api_key[..4];
+                let suffix = &config_instance.api_key[config_instance.api_key.len() - 4..];
+                format!("{}****{}", prefix, suffix)
+            } else {
+                "****".to_string()
+            };
+
             rows.push(ConfigRow {
                 alias: alias.to_string(),
                 provider: config_instance.provider.clone(),
-                api_key: config_instance.api_key.clone(),
+                api_key: masked_api_key,
             });
 
             // 记录当前激活的配置行（+1 因为第1行是表头）
