@@ -8,6 +8,7 @@ Claude Code API 切换工具 - 一个 CLI 应用程序，用于管理和切换 c
 - **自定义提供商**：添加和管理自定义 API 提供商
 - **配置管理**：创建和管理多个 API 配置实例
 - **一键切换**：快速激活不同的 API 配置
+- **启动运行**：直接启动 Claude Code 并设置指定配置的环境变量
 
 ## 安装
 
@@ -67,6 +68,20 @@ cct add -p deepseek -a sk-xxx my-deepseek
 cct use <alias>
 # 例如
 cct use my-deepseek
+```
+
+### 启动 Claude Code
+```bash
+# 使用指定配置启动 Claude Code
+cct start <alias>
+# 例如
+cct start my-deepseek
+
+# 启动并传递参数给 claude
+cct start my-deepseek -- -p "hello claude"
+
+# 启动并设置代理
+cct start my-deepseek --proxy "http://127.0.0.1:11225"
 ```
 
 ## 文件位置

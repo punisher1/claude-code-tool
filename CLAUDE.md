@@ -11,6 +11,7 @@ claude-code-tool (cct) 是一个 Rust CLI 应用程序，用于管理和切换 c
 - **自定义提供商**：可添加和管理自定义 API 提供商配置
 - **配置管理**：创建和管理多个 API 配置实例（含 API 密钥和环境变量）
 - **一键切换**：快速激活不同的 API 配置并更新 Claude Code 设置
+- **启动运行**：直接启动 Claude Code 并设置指定配置的环境变量
 - **环境变量类型支持**：支持 String、Int、Bool 三种类型的环境变量值
 
 ## 开发命令
@@ -59,6 +60,7 @@ cargo clippy
   - `provider.rs` - 提供商管理命令（list/add/rm）
   - `config.rs` - 配置管理命令（list/add/rm/use/current）
   - `switch.rs` - 交互式配置切换
+  - `start.rs` - 启动 Claude Code 命令（start）
 - `src/utils.rs` - 工具函数
   - 提供商名称验证、环境变量合并等
 
@@ -72,14 +74,14 @@ cargo clippy
    - cct 修改其中的 `env` 字段以切换 API 提供商
 
 ### 数据流
-1. 用户执行 CLI 命令（如 `cct use <config>`）
-2. CLI 解析命令并调用对应模块（commands/config.rs）
+1. 用户执行 CLI 命令（如 `cct use <config>` 或 `cct start <config>`）
+2. CLI 解析命令并调用对应模块（commands/config.rs 或 commands/start.rs）
 3. ConfigManager 从 TOML 文件加载配置
 4. ProviderStore 合并内置提供商和自定义提供商
 5. 根据配置实例获取对应提供商的环境变量
 6. 合并三层环境变量（优先级：配置 env > 提供商 env > API 密钥）
-7. ClaudeAdapter 读取当前 settings.json，更新 env 字段并写回
-8. 完成切换，用户可重启 Claude Code 使用新配置
+7. **use 命令**：ClaudeAdapter 读取当前 settings.json，更新 env 字段并写回
+8. **start 命令**：直接启动 claude 进程，将环境变量注入子进程，透传 `--` 后面的参数
 
 ## 开发注意事项
 
