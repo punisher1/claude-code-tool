@@ -2,110 +2,118 @@ use crate::models::Provider;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 
+/// 结构化的提供商定义
+struct ProviderDef {
+    name: &'static str,
+    description: &'static str,
+    base_url: &'static str,
+    model: &'static str,
+    haiku_model: &'static str,
+    sonnet_model: &'static str,
+    opus_model: &'static str,
+    env: Option<HashMap<&'static str, crate::models::EnvValue>>,
+}
+
 lazy_static! {
     pub static ref BUILTIN_PROVIDERS: HashMap<String, Provider> = {
         let mut providers = HashMap::new();
 
-        // Anthropic Claude Code
+        // 定义所有需要环境变量的提供商配置
+        let provider_configs = vec![
+            ProviderDef {
+                name: "deepseek",
+                description: "DeepSeek API",
+                base_url: "https://api.deepseek.com/anthropic",
+                model: "deepseek-chat",
+                haiku_model: "deepseek-chat",
+                sonnet_model: "deepseek-chat",
+                opus_model: "deepseek-chat",
+                env: None,
+            },
+            ProviderDef {
+                name: "kimi-coding",
+                description: "Kimi Coding",
+                base_url: "https://api.kimi.com/coding",
+                model: "kimi-for-coding",
+                haiku_model: "kimi-for-coding",
+                sonnet_model: "kimi-for-coding",
+                opus_model: "kimi-for-coding",
+                env: None,
+            },
+            ProviderDef {
+                name: "zhipu",
+                description: "Zhipu GLM Coding",
+                base_url: "https://open.bigmodel.cn/api/anthropic",
+                model: "glm-4.6",
+                haiku_model: "glm-4.5-air",
+                sonnet_model: "glm-4.6",
+                opus_model: "glm-4.6",
+                env: None,
+            },
+            ProviderDef {
+                name: "xiaomi-mimo",
+                description: "Xiaomi Mimo Coding",
+                base_url: "https://api.xiaomimimo.com/anthropic",
+                model: "mimo-v2-flash",
+                haiku_model: "mimo-v2-flash",
+                sonnet_model: "mimo-v2-flash",
+                opus_model: "mimo-v2-flash",
+                env: None,
+            },
+        ];
+
+        // 添加 Claude Code (无环境变量)
         providers.insert("claude-code".to_string(), Provider {
-            description:Some("Anthropic Claude Code".to_string()),
+            description: Some("Anthropic Claude Code".to_string()),
             env: None,
         });
 
-        // DeepSeek coding
-        let mut deepseek_env = HashMap::new();
-        deepseek_env.insert(
-            "ANTHROPIC_BASE_URL".to_string(),
-            crate::models::EnvValue::String("https://api.deepseek.com/anthropic".to_string()));
-        deepseek_env.insert(
-            "ANTHROPIC_MODEL".to_string(),
-            crate::models::EnvValue::String("deepseek-chat".to_string()));
-        deepseek_env.insert(
-            "ANTHROPIC_DEFAULT_HAIKU_MODEL".to_string(),
-            crate::models::EnvValue::String("deepseek-chat".to_string()));
-        deepseek_env.insert(
-            "ANTHROPIC_DEFAULT_SONNET_MODEL".to_string(),
-            crate::models::EnvValue::String("deepseek-chat".to_string()));
-        deepseek_env.insert(
-            "ANTHROPIC_DEFAULT_OPUS_MODEL".to_string(),
-            crate::models::EnvValue::String("deepseek-chat".to_string()));
-        deepseek_env.insert(
-            "API_TIMEOUT_MS".to_string(),
-            crate::models::EnvValue::Int(3000000));
-        deepseek_env.insert(
-            "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC".to_string(),
-            crate::models::EnvValue::Int(1));
+        // 使用循环处理所有提供商
+        for config in provider_configs {
+            let mut env_map = HashMap::new();
 
-        providers.insert("deepseek".to_string(), Provider {
-            description: Some("DeepSeek API".to_string()),
-            env: Some(deepseek_env),
-        });
+            // 添加通用的环境变量
+            env_map.insert(
+                "ANTHROPIC_BASE_URL".to_string(),
+                crate::models::EnvValue::String(config.base_url.to_string())
+            );
+            env_map.insert(
+                "ANTHROPIC_MODEL".to_string(),
+                crate::models::EnvValue::String(config.model.to_string())
+            );
+            env_map.insert(
+                "ANTHROPIC_DEFAULT_HAIKU_MODEL".to_string(),
+                crate::models::EnvValue::String(config.haiku_model.to_string())
+            );
+            env_map.insert(
+                "ANTHROPIC_DEFAULT_SONNET_MODEL".to_string(),
+                crate::models::EnvValue::String(config.sonnet_model.to_string())
+            );
+            env_map.insert(
+                "ANTHROPIC_DEFAULT_OPUS_MODEL".to_string(),
+                crate::models::EnvValue::String(config.opus_model.to_string())
+            );
+            env_map.insert(
+                "API_TIMEOUT_MS".to_string(),
+                crate::models::EnvValue::Int(3000000)
+            );
+            env_map.insert(
+                "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC".to_string(),
+                crate::models::EnvValue::Int(1)
+            );
 
-        // Kimi coding
-        let mut kimi_env = HashMap::new();
-        kimi_env.insert("ANTHROPIC_BASE_URL".to_string(),
-            crate::models::EnvValue::String("https://api.kimi.com/coding".to_string()));
-        kimi_env.insert("ANTHROPIC_MODEL".to_string(),
-            crate::models::EnvValue::String("kimi-for-coding".to_string()));
-        kimi_env.insert("ANTHROPIC_DEFAULT_HAIKU_MODEL".to_string(),
-            crate::models::EnvValue::String("kimi-for-coding".to_string()));
-        kimi_env.insert("ANTHROPIC_DEFAULT_SONNET_MODEL".to_string(),
-            crate::models::EnvValue::String("kimi-for-coding".to_string()));
-        kimi_env.insert("ANTHROPIC_DEFAULT_OPUS_MODEL".to_string(),
-            crate::models::EnvValue::String("kimi-for-coding".to_string()));
-        kimi_env.insert("API_TIMEOUT_MS".to_string(),
-            crate::models::EnvValue::Int(3000000));
-        kimi_env.insert("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC".to_string(),
-            crate::models::EnvValue::Int(1));
+            // 如果有额外的环境变量，添加它们
+            if let Some(extra_env) = &config.env {
+                for (key, value) in extra_env {
+                    env_map.insert(key.to_string(), value.clone());
+                }
+            }
 
-        providers.insert("kimi-coding".to_string(), Provider {
-            description: Some("Kimi Coding".to_string()),
-            env: Some(kimi_env),
-        });
-
-        // Zhipu GLM coding
-        let mut zhipu_env = HashMap::new();
-        zhipu_env.insert("ANTHROPIC_BASE_URL".to_string(),
-            crate::models::EnvValue::String("https://open.bigmodel.cn/api/anthropic".to_string()));
-        zhipu_env.insert("ANTHROPIC_MODEL".to_string(),
-            crate::models::EnvValue::String("glm-4.6".to_string()));
-        zhipu_env.insert("ANTHROPIC_DEFAULT_HAIKU_MODEL".to_string(),
-            crate::models::EnvValue::String("glm-4.5-air".to_string()));
-        zhipu_env.insert("ANTHROPIC_DEFAULT_SONNET_MODEL".to_string(),
-            crate::models::EnvValue::String("glm-4.6".to_string()));
-        zhipu_env.insert("ANTHROPIC_DEFAULT_OPUS_MODEL".to_string(),
-            crate::models::EnvValue::String("glm-4.6".to_string()));
-        zhipu_env.insert("API_TIMEOUT_MS".to_string(),
-            crate::models::EnvValue::Int(3000000));
-        zhipu_env.insert("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC".to_string(),
-            crate::models::EnvValue::Int(1));
-
-        providers.insert("zhipu".to_string(), Provider {
-            description: Some("Zhipu GLM Coding".to_string()),
-            env: Some(zhipu_env),
-        });
-
-        // xiaomi mimo coding
-        let mut xiaomi_env = HashMap::new();
-        xiaomi_env.insert("ANTHROPIC_BASE_URL".to_string(),
-            crate::models::EnvValue::String("https://api.xiaomimimo.com/anthropic".to_string()));
-        xiaomi_env.insert("ANTHROPIC_MODEL".to_string(),
-            crate::models::EnvValue::String("mimo-v2-flash".to_string()));
-        xiaomi_env.insert("ANTHROPIC_DEFAULT_HAIKU_MODEL".to_string(),
-            crate::models::EnvValue::String("mimo-v2-flash".to_string()));
-        xiaomi_env.insert("ANTHROPIC_DEFAULT_SONNET_MODEL".to_string(),
-            crate::models::EnvValue::String("mimo-v2-flash".to_string()));
-        xiaomi_env.insert("ANTHROPIC_DEFAULT_OPUS_MODEL".to_string(),
-            crate::models::EnvValue::String("mimo-v2-flash".to_string()));
-        xiaomi_env.insert("API_TIMEOUT_MS".to_string(),
-            crate::models::EnvValue::Int(3000000));
-        xiaomi_env.insert("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC".to_string(),
-            crate::models::EnvValue::Int(1));
-
-        providers.insert("xiaomi-mimo".to_string(), Provider {
-            description: Some("Xiaomi Mimo Coding".to_string()),
-            env: Some(xiaomi_env),
-        });
+            providers.insert(config.name.to_string(), Provider {
+                description: Some(config.description.to_string()),
+                env: Some(env_map),
+            });
+        }
 
         providers
     };
