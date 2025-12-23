@@ -7,7 +7,7 @@ mod utils;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use commands::{Command, AddCommand, ListCommand, ProviderCommand, UseCommand};
+use commands::{Command, AddCommand, ListCommand, ProviderCommand, UseCommand, ResetCommand};
 use config_manager::ConfigManager;
 
 #[derive(Parser)]
@@ -48,6 +48,9 @@ enum Commands {
         /// Configuration alias (optional, will show interactive selection if not provided)
         alias: Option<String>,
     },
+
+    /// Clear all provider settings
+    Reset,
 }
 
 #[derive(Subcommand)]
@@ -104,6 +107,10 @@ fn main() -> Result<()> {
         }
         Commands::Use { alias } => {
             let cmd = UseCommand { alias };
+            cmd.execute(&mut config)?;
+        }
+        Commands::Reset => {
+            let cmd = ResetCommand;
             cmd.execute(&mut config)?;
         }
     }

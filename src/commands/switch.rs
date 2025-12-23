@@ -14,30 +14,27 @@ pub struct UseCommand {
     pub alias: Option<String>,
 }
 
+pub struct ResetCommand;
+
 impl Command for UseCommand {
     fn execute(self, config: &mut AppConfig) -> Result<()> {
         let alias = match self.alias {
             Some(alias) => alias,
             None => {
                 // Interactive selection mode
-                if config.configs.is_empty() {
-                    return Err(anyhow!("No configurations found. Add a configuration first with 'cct add'."));
-                }
+                // Prepare items for selection (with None option)
+                let mut items = vec!["none [Clear all provider settings]".to_string()];
+                items.extend(config.configs.keys().cloned().collect::<Vec<_>>());
 
-                // Prepare items for selection
-                let items: Vec<_> = config.configs
-                    .keys()
-                    .cloned()
-                    .collect();
-
-                if items.is_empty() {
-                    return Err(anyhow!("No configurations available"));
-                }
-
-                // Find current selection index
-                let current_index = config.current.as_ref()
-                    .and_then(|current| items.iter().position(|item| item == current))
-                    .unwrap_or(0);
+                // Find current selection index (None is at index 0)
+                let current_index = match config.current.as_ref() {
+                    Some(current) => {
+                        items.iter().position(|item| item == current)
+                            .map(|i| i + 1) // +1 because None is at index 0
+                            .unwrap_or(0)
+                    }
+                    None => 0,
+                };
 
                 // Show selection dialog
                 let selection = Select::with_theme(&ColorfulTheme::default())
@@ -47,7 +44,14 @@ impl Command for UseCommand {
                     .interact();
 
                 match selection {
-                    Ok(index) => items[index].clone(),
+                    Ok(index) => {
+                        if index == 0 {
+                            // User selected "None" - clear all settings
+                            return self.clear_settings(config);
+                        } else {
+                            items[index].clone()
+                        }
+                    }
                     Err(e) => return Err(anyhow!("Failed to read selection: {}", e)),
                 }
             }
@@ -128,6 +132,46 @@ impl Command for UseCommand {
         }
 
         Ok(())
+    }
+}
+
+impl UseCommand {
+    /// Clear all provider settings from Claude settings
+    fn clear_settings(self, config: &mut AppConfig) -> Result<()> {
+        // Check if already cleared
+        if config.current.is_none() {
+            println!(
+                "{} Already cleared all provider settings",
+                style("!").yellow()
+            );
+            return Ok(());
+        }
+
+        // Update Claude settings with empty env
+        let settings_path = ClaudeAdapter::get_settings_path()?;
+        let empty_env = HashMap::new();
+        ClaudeAdapter::update_settings(&settings_path, empty_env)?;
+
+        // Clear current configuration
+        config.current = None;
+
+        // Save config
+        let manager = ConfigManager::new()?;
+        manager.save_config(config)?;
+
+        println!(
+            "{} Cleared all provider settings",
+            style("✓").green()
+        );
+
+        Ok(())
+    }
+}
+
+impl Command for ResetCommand {
+    fn execute(self, config: &mut AppConfig) -> Result<()> {
+        let cmd = UseCommand { alias: None };
+        cmd.clear_settings(config)
     }
 }
 

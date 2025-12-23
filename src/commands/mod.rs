@@ -4,7 +4,7 @@ pub mod switch;
 
 pub use config::{AddCommand, ListCommand};
 pub use provider::ProviderCommand;
-pub use switch::UseCommand;
+pub use switch::{UseCommand, ResetCommand};
 
 use crate::models::AppConfig;
 use anyhow::Result;
