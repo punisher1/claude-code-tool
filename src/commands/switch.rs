@@ -2,12 +2,13 @@ use crate::claude_adapter::ClaudeAdapter;
 use crate::commands::Command;
 use crate::config_manager::ConfigManager;
 use crate::models::AppConfig;
+use crate::models::EnvValue;
 use crate::provider_store::ProviderStore;
+use crate::utils::backup_file;
 use anyhow::{Result, anyhow};
 use console::style;
 use dialoguer::{Select, theme::ColorfulTheme};
 use std::collections::HashMap;
-use crate::models::EnvValue;
 
 
 pub struct UseCommand {
@@ -106,8 +107,9 @@ impl Command for UseCommand {
             env_vars.insert("ANTHROPIC_AUTH_TOKEN".to_string(), EnvValue::String(api_key.clone()));
         }
 
-        // Update Claude settings
+        // Update Claude settings (with backup)
         let settings_path = ClaudeAdapter::get_settings_path()?;
+        backup_file(&settings_path, "settings", 5)?;
         ClaudeAdapter::update_settings(&settings_path, env_vars)?;
 
         // Update current configuration
@@ -149,8 +151,9 @@ impl UseCommand {
             return Ok(());
         }
 
-        // Update Claude settings with empty env
+        // Update Claude settings with empty env (with backup)
         let settings_path = ClaudeAdapter::get_settings_path()?;
+        backup_file(&settings_path, "settings", 5)?;
         let empty_env = HashMap::new();
         ClaudeAdapter::update_settings(&settings_path, empty_env)?;
 

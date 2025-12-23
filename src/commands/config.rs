@@ -2,6 +2,7 @@ use crate::commands::Command;
 use crate::config_manager::ConfigManager;
 use crate::models::{AppConfig, ConfigInstance, EnvValue};
 use crate::provider_store::ProviderStore;
+use crate::utils::backup_file;
 use anyhow::{Result, anyhow};
 use console::style;
 use std::collections::HashMap;
@@ -39,9 +40,6 @@ impl Command for AddCommand {
         // Add proxy settings if provided
         if let Some(proxy_url) = self.proxy {
             let env_map = env.get_or_insert_with(HashMap::new);
-            // Linux-compatible: both lowercase and uppercase
-            env_map.insert("http_proxy".to_string(), EnvValue::String(proxy_url.clone()));
-            env_map.insert("https_proxy".to_string(), EnvValue::String(proxy_url.clone()));
             env_map.insert("HTTP_PROXY".to_string(), EnvValue::String(proxy_url.clone()));
             env_map.insert("HTTPS_PROXY".to_string(), EnvValue::String(proxy_url));
         }
@@ -56,8 +54,10 @@ impl Command for AddCommand {
         // Add to config
         config.configs.insert(self.alias.clone(), config_instance);
 
-        // Save config
+        // Save config (with backup)
         let manager = ConfigManager::new()?;
+        let config_path = ConfigManager::get_config_path()?;
+        backup_file(&config_path, "config", 5)?;
         manager.save_config(config)?;
 
         println!(
