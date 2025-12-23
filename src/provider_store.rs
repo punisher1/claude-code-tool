@@ -86,25 +86,25 @@ lazy_static! {
         });
 
         // xiaomi mimo coding
-        let mut zhipu_env = HashMap::new();
-        zhipu_env.insert("ANTHROPIC_BASE_URL".to_string(),
+        let mut xiaomi_env = HashMap::new();
+        xiaomi_env.insert("ANTHROPIC_BASE_URL".to_string(),
             crate::models::EnvValue::String("https://api.xiaomimimo.com/anthropic".to_string()));
-        zhipu_env.insert("ANTHROPIC_MODEL".to_string(),
+        xiaomi_env.insert("ANTHROPIC_MODEL".to_string(),
             crate::models::EnvValue::String("mimo-v2-flash".to_string()));
-        zhipu_env.insert("ANTHROPIC_DEFAULT_HAIKU_MODEL".to_string(),
+        xiaomi_env.insert("ANTHROPIC_DEFAULT_HAIKU_MODEL".to_string(),
             crate::models::EnvValue::String("mimo-v2-flash".to_string()));
-        zhipu_env.insert("ANTHROPIC_DEFAULT_SONNET_MODEL".to_string(),
+        xiaomi_env.insert("ANTHROPIC_DEFAULT_SONNET_MODEL".to_string(),
             crate::models::EnvValue::String("mimo-v2-flash".to_string()));
-        zhipu_env.insert("ANTHROPIC_DEFAULT_OPUS_MODEL".to_string(),
+        xiaomi_env.insert("ANTHROPIC_DEFAULT_OPUS_MODEL".to_string(),
             crate::models::EnvValue::String("mimo-v2-flash".to_string()));
-        zhipu_env.insert("API_TIMEOUT_MS".to_string(),
+        xiaomi_env.insert("API_TIMEOUT_MS".to_string(),
             crate::models::EnvValue::Int(3000000));
-        zhipu_env.insert("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC".to_string(),
+        xiaomi_env.insert("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC".to_string(),
             crate::models::EnvValue::Int(1));
 
         providers.insert("xiaomi-mimo".to_string(), Provider {
             description: Some("Xiaomi Mimo Coding".to_string()),
-            env: Some(zhipu_env),
+            env: Some(xiaomi_env),
         });
 
         providers
