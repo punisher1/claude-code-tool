@@ -7,7 +7,7 @@ mod utils;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use commands::{Command, AddCommand, ListCommand, ProviderCommand, UseCommand, ResetCommand};
+use commands::{Command, AddCommand, ListCommand, ProviderCommand, UseCommand, ResetCommand, RmCommand};
 use config_manager::ConfigManager;
 
 #[derive(Parser)]
@@ -34,9 +34,13 @@ enum Commands {
         #[arg(short, long)]
         provider: String,
 
-        /// API key
+        /// API key (optional, can be set later via environment variables)
         #[arg(short, long)]
-        api_key: String,
+        api_key: Option<String>,
+
+        /// HTTP/HTTPS proxy URL (e.g., http://proxy.example.com:8080)
+        #[arg(long)]
+        proxy: Option<String>,
     },
 
     /// List all configurations
@@ -51,6 +55,12 @@ enum Commands {
 
     /// Clear all provider settings
     Reset,
+
+    /// Remove a configuration
+    Rm {
+        /// Configuration alias
+        alias: String,
+    },
 }
 
 #[derive(Subcommand)]
@@ -93,11 +103,13 @@ fn main() -> Result<()> {
             alias,
             provider,
             api_key,
+            proxy,
         } => {
             let cmd = AddCommand {
                 alias,
                 provider,
                 api_key,
+                proxy,
             };
             cmd.execute(&mut config)?;
         }
@@ -111,6 +123,10 @@ fn main() -> Result<()> {
         }
         Commands::Reset => {
             let cmd = ResetCommand;
+            cmd.execute(&mut config)?;
+        }
+        Commands::Rm { alias } => {
+            let cmd = RmCommand { alias };
             cmd.execute(&mut config)?;
         }
     }

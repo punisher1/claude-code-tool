@@ -30,7 +30,7 @@ impl Command for UseCommand {
                 let current_index = match config.current.as_ref() {
                     Some(current) => {
                         items.iter().position(|item| item == current)
-                            .map(|i| i + 1) // +1 because None is at index 0
+                            // .map(|i| i + 1) // +1 because None is at index 0
                             .unwrap_or(0)
                     }
                     None => 0,
@@ -101,8 +101,10 @@ impl Command for UseCommand {
             env_vars.extend(config_env.clone());
         }
 
-        // Ensure API key is set (use ANTHROPIC_AUTH_TOKEN instead of ANTHROPIC_API_KEY)
-        env_vars.insert("ANTHROPIC_AUTH_TOKEN".to_string(), EnvValue::String(config_instance.api_key.clone()));
+        // Add API key if provided
+        if let Some(api_key) = &config_instance.api_key {
+            env_vars.insert("ANTHROPIC_AUTH_TOKEN".to_string(), EnvValue::String(api_key.clone()));
+        }
 
         // Update Claude settings
         let settings_path = ClaudeAdapter::get_settings_path()?;

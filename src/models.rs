@@ -110,7 +110,8 @@ pub struct Provider {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ConfigInstance {
     pub provider: String,
-    pub api_key: String,
+    #[serde(default)]
+    pub api_key: Option<String>,
     #[serde(default)]
     pub env: Option<HashMap<String, EnvValue>>,
 }
@@ -148,7 +149,7 @@ mod tests {
 
         let config_instance = ConfigInstance {
             provider: "anthropic".to_string(),
-            api_key: "test-key".to_string(),
+            api_key: Some("test-key".to_string()),
             env: None,
         };
 

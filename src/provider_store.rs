@@ -78,6 +78,19 @@ lazy_static! {
             env: None,
         });
 
+        // 添加 Claude Console
+        providers.insert("claude-console".to_string(), Provider {
+            description: Some("Anthropic Claude Console".to_string()),
+            env: Some({
+                let mut env_map = HashMap::new();
+                env_map.insert(
+                    "ANTHROPIC_BASE_URL".to_string(),
+                    crate::models::EnvValue::String("https://api.anthropic.com".to_string())
+                );
+                env_map
+            })
+        });
+
         // 使用循环处理所有提供商
         for config in provider_configs {
             let mut env_map = HashMap::new();

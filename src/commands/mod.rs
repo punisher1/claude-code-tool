@@ -2,7 +2,7 @@ pub mod config;
 pub mod provider;
 pub mod switch;
 
-pub use config::{AddCommand, ListCommand};
+pub use config::{AddCommand, ListCommand, RmCommand};
 pub use provider::ProviderCommand;
 pub use switch::{UseCommand, ResetCommand};
 

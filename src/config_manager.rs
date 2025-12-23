@@ -88,7 +88,7 @@ mod tests {
         let mut configs = std::collections::HashMap::new();
         let config_instance = crate::models::ConfigInstance {
             provider: "test".to_string(),
-            api_key: "key123".to_string(),
+            api_key: Some("key123".to_string()),
             env: None,
         };
         configs.insert("my-config".to_string(), config_instance);
