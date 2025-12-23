@@ -25,7 +25,9 @@ impl Command for UseCommand {
                 // Interactive selection mode
                 // Prepare items for selection (with None option)
                 let mut items = vec!["none [Clear all provider settings]".to_string()];
-                items.extend(config.configs.keys().cloned().collect::<Vec<_>>());
+                let mut keys: Vec<_> = config.configs.keys().cloned().collect();
+                keys.sort();
+                items.extend(keys);
 
                 // Find current selection index (None is at index 0)
                 let current_index = match config.current.as_ref() {

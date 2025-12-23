@@ -47,11 +47,7 @@ fn cleanup_old_backups(
     max_backups: usize,
 ) -> Result<()> {
     // 收集匹配的备份文件
-    let pattern = if extension.is_empty() {
-        format!("{}_", prefix)
-    } else {
-        format!("{}_", prefix)
-    };
+    let pattern = format!("{}_", prefix);
 
     let mut backups: Vec<_> = fs::read_dir(dir)
         .with_context(|| format!("Failed to read directory: {:?}", dir))?
@@ -78,7 +74,7 @@ fn cleanup_old_backups(
     }
 
     // 按文件名排序（因为时间戳在文件名中，所以字母序等于时间序）
-    backups.sort_by(|a, b| b.file_name().cmp(&a.file_name()));
+    backups.sort_by_key(|b| std::cmp::Reverse(b.file_name()));
 
     // 删除超出限制的旧备份
     for backup in backups.iter().skip(max_backups) {
