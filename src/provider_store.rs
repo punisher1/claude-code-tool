@@ -12,7 +12,7 @@ lazy_static! {
             env: None,
         });
 
-        // DeepSeek
+        // DeepSeek coding
         let mut deepseek_env = HashMap::new();
         deepseek_env.insert(
             "ANTHROPIC_BASE_URL".to_string(),
@@ -41,7 +41,7 @@ lazy_static! {
             env: Some(deepseek_env),
         });
 
-        // Kimi/Moonshot
+        // Kimi coding
         let mut kimi_env = HashMap::new();
         kimi_env.insert("ANTHROPIC_BASE_URL".to_string(),
             crate::models::EnvValue::String("https://api.kimi.com/coding".to_string()));
@@ -59,11 +59,11 @@ lazy_static! {
             crate::models::EnvValue::Int(1));
 
         providers.insert("kimi-coding".to_string(), Provider {
-            description: Some("Kimi Coding API".to_string()),
+            description: Some("Kimi Coding".to_string()),
             env: Some(kimi_env),
         });
 
-        // Zhipu GLM
+        // Zhipu GLM coding
         let mut zhipu_env = HashMap::new();
         zhipu_env.insert("ANTHROPIC_BASE_URL".to_string(),
             crate::models::EnvValue::String("https://open.bigmodel.cn/api/anthropic".to_string()));
@@ -81,7 +81,29 @@ lazy_static! {
             crate::models::EnvValue::Int(1));
 
         providers.insert("zhipu".to_string(), Provider {
-            description: Some("Zhipu GLM API".to_string()),
+            description: Some("Zhipu GLM Coding".to_string()),
+            env: Some(zhipu_env),
+        });
+
+        // xiaomi mimo coding
+        let mut zhipu_env = HashMap::new();
+        zhipu_env.insert("ANTHROPIC_BASE_URL".to_string(),
+            crate::models::EnvValue::String("https://api.xiaomimimo.com/anthropic".to_string()));
+        zhipu_env.insert("ANTHROPIC_MODEL".to_string(),
+            crate::models::EnvValue::String("mimo-v2-flash".to_string()));
+        zhipu_env.insert("ANTHROPIC_DEFAULT_HAIKU_MODEL".to_string(),
+            crate::models::EnvValue::String("mimo-v2-flash".to_string()));
+        zhipu_env.insert("ANTHROPIC_DEFAULT_SONNET_MODEL".to_string(),
+            crate::models::EnvValue::String("mimo-v2-flash".to_string()));
+        zhipu_env.insert("ANTHROPIC_DEFAULT_OPUS_MODEL".to_string(),
+            crate::models::EnvValue::String("mimo-v2-flash".to_string()));
+        zhipu_env.insert("API_TIMEOUT_MS".to_string(),
+            crate::models::EnvValue::Int(3000000));
+        zhipu_env.insert("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC".to_string(),
+            crate::models::EnvValue::Int(1));
+
+        providers.insert("xiaomi-mimo".to_string(), Provider {
+            description: Some("Xiaomi Mimo Coding".to_string()),
             env: Some(zhipu_env),
         });
 
