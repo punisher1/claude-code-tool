@@ -1,4 +1,4 @@
-# claude-code-tool (cct)
+# 🛠️ claude-code-tool (cct)
 
 **English** | [中文](README_zh-CN.md)
 
@@ -9,7 +9,7 @@
 
 Claude Code API Switching Tool - A CLI application for managing and switching between different API providers for the claudecode tool.
 
-## Features
+## 🌟 Features
 
 - **Multi-provider Support**: Easily switch between Anthropic official API and third-party compatible providers (DeepSeek, Kimi/Moonshot, Zhipu GLM, etc.)
 - **Custom Providers**: Add and manage custom API providers
@@ -17,7 +17,7 @@ Claude Code API Switching Tool - A CLI application for managing and switching be
 - **One-click Switching**: Quickly activate different API configurations
 - **Launch & Run**: Directly launch Claude Code with environment variables set for a specific configuration
 
-## Installation
+## 📥 Installation
 
 ### Download from GitHub Release (Recommended)
 Visit the [Releases Page](https://github.com/punisher1/claude-code-tool/releases) to download pre-compiled binaries for your platform:
@@ -44,7 +44,7 @@ cargo build --release
 
 The executable will be generated at `target/release/cct` (or `cct.exe` on Windows).
 
-## Usage
+## 🚀 Usage
 
 ### List all providers
 ```bash
@@ -91,12 +91,12 @@ cct start my-deepseek -- -p "hello claude"
 cct start my-deepseek --proxy "http://127.0.0.1:11225"
 ```
 
-## File Locations
+## 📂 File Locations
 
 - Config File: `~/.cct/config.toml` (macOS/Linux) or `%USERPROFILE%\.cct\config.toml` (Windows)
 - Claude Settings: `~/.claude/settings.json` (macOS/Linux) or `%USERPROFILE%\.claude\settings.json` (Windows)
 
-## Supported Providers
+## 🔌 Supported Providers
 
 ### Built-in Providers
 - **claude-code** - Anthropic Claude Code (Official)
@@ -109,7 +109,7 @@ cct start my-deepseek --proxy "http://127.0.0.1:11225"
 ### Custom Providers
 Supports adding any third-party provider compatible with the Anthropic API format.
 
-## Technical Features
+## ⚙️ Technical Features
 
 ### Environment Variable Type Support
 Environment variables in the configuration file support three types:
@@ -127,7 +127,7 @@ env.API_TIMEOUT_MS = 3000000  # Integer type
 env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = 1  # Integer flag
 ```
 
-## Development
+## 👨‍💻 Development
 
 ### Run Tests
 ```bash
@@ -177,6 +177,6 @@ cargo fmt
 cargo clippy
 ```
 
-## License
+## 📄 License
 
 MIT License
