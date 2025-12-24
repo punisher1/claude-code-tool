@@ -7,7 +7,7 @@
 [![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/punisher1/claude-code-tool/total)](https://github.com/punisher1/claude-code-tool/releases)
 [![License](https://img.shields.io/github/license/punisher1/claude-code-tool)](LICENSE)
 
-Claude Code API 切换工具 - 一个 CLI 应用程序，用于管理和切换 claudecode 工具的不同 API 提供商。
+Claude Code API 切换工具 - 轻松管理并即时切换多个 API 提供商。支持同时开启多个终端 Session，并为每个 Session 配置不同的提供商（例如：在一个终端用 DeepSeek，另一个终端用 Kimi）。
 
 ## 目录
 - [🛠️ claude-code-tool (cct)](#️-claude-code-tool-cct)
@@ -41,6 +41,7 @@ Claude Code API 切换工具 - 一个 CLI 应用程序，用于管理和切换 c
 
 ## 🌟 功能
 
+- **多 Session 支持**：支持同时开启多个终端窗口，并为每个窗口运行配置了不同提供商的 Claude Code。
 - **多提供商支持**：轻松切换 Anthropic 官方 API 和第三方兼容提供商（DeepSeek、Kimi/Moonshot、智谱 GLM 等）
 - **自定义提供商**：添加和管理自定义 API 提供商
 - **配置管理**：创建和管理多个 API 配置实例

@@ -7,7 +7,7 @@
 [![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/punisher1/claude-code-tool/total)](https://github.com/punisher1/claude-code-tool/releases)
 [![License](https://img.shields.io/github/license/punisher1/claude-code-tool)](LICENSE)
 
-Claude Code API Switching Tool - A CLI application for managing and switching between different API providers for the claudecode tool.
+Claude Code API Switching Tool - Effortlessly manage multiple API providers and switch between them instantly. Supports running multiple simultaneous terminal sessions with different providers (e.g., DeepSeek in one, Kimi in another).
 
 ## Table of Contents
 - [claude-code-tool (cct)](#claude-code-tool-cct)
@@ -38,8 +38,9 @@ Claude Code API Switching Tool - A CLI application for managing and switching be
     - [Code Linting](#code-linting)
   - [License](#license)
 
-## Features
+## 🌟 Features
 
+- **Multi-session Support**: Open multiple terminal windows and run Claude Code with different providers in each one simultaneously.
 - **Multi-provider Support**: Easily switch between Anthropic official API and third-party compatible providers (DeepSeek, Kimi/Moonshot, Zhipu GLM, etc.)
 - **Custom Providers**: Add and manage custom API providers
 - **Configuration Management**: Create and manage multiple API configuration instances
