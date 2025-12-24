@@ -11,9 +11,9 @@ Claude Code API 切换工具 - 轻松管理并即时切换多个 API 提供商�
 
 ![同时使用多个提供商](resources/screenshot.jpg)
 
-## 目录
+## 📋 目录
 - [🛠️ claude-code-tool (cct)](#️-claude-code-tool-cct)
-  - [目录](#目录)
+  - [📋 目录](#-目录)
   - [🌟 功能](#-功能)
   - [📥 安装](#-安装)
     - [从 GitHub Release 下载（推荐）](#从-github-release-下载推荐)

@@ -1,4 +1,4 @@
-# claude-code-tool (cct)
+# 🛠️ claude-code-tool (cct)
 
 **English** | [中文](README_zh-CN.md)
 
@@ -12,34 +12,34 @@ Claude Code API Switching Tool - Effortlessly manage multiple API providers and 
 ![Using multiple providers simultaneously](resources/screenshot.jpg)
 
 
-## Table of Contents
-- [claude-code-tool (cct)](#claude-code-tool-cct)
-  - [Table of Contents](#table-of-contents)
+## 📋 Table of Contents
+- [🛠️ claude-code-tool (cct)](#️-claude-code-tool-cct)
+  - [📋 Table of Contents](#-table-of-contents)
   - [🌟 Features](#-features)
-  - [Installation](#installation)
+  - [📥 Installation](#-installation)
     - [Download from GitHub Release (Recommended)](#download-from-github-release-recommended)
     - [Build from Source](#build-from-source)
-  - [Usage](#usage)
+  - [🚀 Usage](#-usage)
     - [List all providers](#list-all-providers)
     - [Add a custom provider](#add-a-custom-provider)
     - [Remove a custom provider](#remove-a-custom-provider)
     - [Add an API configuration](#add-an-api-configuration)
     - [Use a configuration](#use-a-configuration)
     - [Start Claude Code](#start-claude-code)
-  - [File Locations](#file-locations)
-  - [Supported Providers](#supported-providers)
+  - [📂 File Locations](#-file-locations)
+  - [🔌 Supported Providers](#-supported-providers)
     - [Built-in Providers](#built-in-providers)
     - [Custom Providers](#custom-providers)
-  - [Technical Features](#technical-features)
+  - [⚙️ Technical Features](#️-technical-features)
     - [Environment Variable Type Support](#environment-variable-type-support)
-  - [Development](#development)
+  - [👨‍💻 Development](#-development)
     - [Run Tests](#run-tests)
     - [Development Build](#development-build)
     - [Release Build](#release-build)
     - [Create Release](#create-release)
     - [Code Formatting](#code-formatting)
     - [Code Linting](#code-linting)
-  - [License](#license)
+  - [📄 License](#-license)
 
 ## 🌟 Features
 
@@ -50,7 +50,7 @@ Claude Code API Switching Tool - Effortlessly manage multiple API providers and 
 - **One-click Switching**: Quickly activate different API configurations
 - **Launch & Run**: Directly launch Claude Code with environment variables set for a specific configuration
 
-## Installation
+## 📥 Installation
 
 ### Download from GitHub Release (Recommended)
 Visit the [Releases Page](https://github.com/punisher1/claude-code-tool/releases) to download pre-compiled binaries for your platform:
@@ -77,7 +77,7 @@ cargo build --release
 
 The executable will be generated at `target/release/cct` (or `cct.exe` on Windows).
 
-## Usage
+## 🚀 Usage
 
 ### List all providers
 ```bash
@@ -124,12 +124,12 @@ cct start my-deepseek -- -p "hello claude"
 cct start my-deepseek --proxy "http://127.0.0.1:11225"
 ```
 
-## File Locations
+## 📂 File Locations
 
 - Config File: `~/.cct/config.toml` (macOS/Linux) or `%USERPROFILE%\.cct\config.toml` (Windows)
 - Claude Settings: `~/.claude/settings.json` (macOS/Linux) or `%USERPROFILE%\.claude\settings.json` (Windows)
 
-## Supported Providers
+## 🔌 Supported Providers
 
 ### Built-in Providers
 - **claude-code** - Anthropic Claude Code (Official)
@@ -142,7 +142,7 @@ cct start my-deepseek --proxy "http://127.0.0.1:11225"
 ### Custom Providers
 Supports adding any third-party provider compatible with the Anthropic API format.
 
-## Technical Features
+## ⚙️ Technical Features
 
 ### Environment Variable Type Support
 Environment variables in the configuration file support three types:
@@ -160,7 +160,7 @@ env.API_TIMEOUT_MS = 3000000  # Integer type
 env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = 1  # Integer flag
 ```
 
-## Development
+## 👨‍💻 Development
 
 ### Run Tests
 ```bash
@@ -210,6 +210,6 @@ cargo fmt
 cargo clippy
 ```
 
-## License
+## 📄 License
 
 MIT License
