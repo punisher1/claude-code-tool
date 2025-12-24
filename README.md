@@ -2,6 +2,11 @@
 
 [中文文档](README_zh-CN.md)
 
+[![GitHub Release](https://img.shields.io/github/v/release/punisher1/claude-code-tool)](https://github.com/punisher1/claude-code-tool/releases)
+![Platform](https://img.shields.io/badge/platform-windows%20%7C%20macos%20%7C%20linux-blue)
+[![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/punisher1/claude-code-tool/total)](https://github.com/punisher1/claude-code-tool/releases)
+[![License](https://img.shields.io/github/license/punisher1/claude-code-tool)](LICENSE)
+
 Claude Code API Switching Tool - A CLI application for managing and switching between different API providers for the claudecode tool.
 
 ## Features
