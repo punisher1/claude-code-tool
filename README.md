@@ -9,7 +9,7 @@
 
 Claude Code API Switching Tool - Effortlessly manage multiple API providers and switch between them instantly. Supports running multiple simultaneous terminal sessions with different providers (e.g., DeepSeek in one, Kimi in another).
 
-![Using multiple providers simultaneously](resources/screenshot.png)
+![Using multiple providers simultaneously](resources/screenshot.jpg)
 
 ## Table of Contents
 - [claude-code-tool (cct)](#claude-code-tool-cct)
