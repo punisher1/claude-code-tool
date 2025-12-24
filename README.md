@@ -1,6 +1,6 @@
 # claude-code-tool (cct)
 
-[中文文档](README_zh-CN.md)
+**English** | [中文](README_zh-CN.md)
 
 [![GitHub Release](https://img.shields.io/github/v/release/punisher1/claude-code-tool)](https://github.com/punisher1/claude-code-tool/releases)
 ![Platform](https://img.shields.io/badge/platform-windows%20%7C%20macos%20%7C%20linux-blue)
