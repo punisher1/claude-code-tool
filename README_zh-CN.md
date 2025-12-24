@@ -9,6 +9,8 @@
 
 Claude Code API 切换工具 - 轻松管理并即时切换多个 API 提供商。支持同时开启多个终端 Session，并为每个 Session 配置不同的提供商（例如：在一个终端用 DeepSeek，另一个终端用 Kimi）。
 
+![同时使用多个提供商](resources/screenshot.png)
+
 ## 目录
 - [🛠️ claude-code-tool (cct)](#️-claude-code-tool-cct)
   - [目录](#目录)
