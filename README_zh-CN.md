@@ -1,4 +1,4 @@
-# claude-code-tool (cct)
+# 🛠️ claude-code-tool (cct)
 
 [English](README.md) | **中文**
 
@@ -9,7 +9,7 @@
 
 Claude Code API 切换工具 - 一个 CLI 应用程序，用于管理和切换 claudecode 工具的不同 API 提供商。
 
-## 功能
+## 🌟 功能
 
 - **多提供商支持**：轻松切换 Anthropic 官方 API 和第三方兼容提供商（DeepSeek、Kimi/Moonshot、智谱 GLM 等）
 - **自定义提供商**：添加和管理自定义 API 提供商
@@ -17,7 +17,7 @@ Claude Code API 切换工具 - 一个 CLI 应用程序，用于管理和切换 c
 - **一键切换**：快速激活不同的 API 配置
 - **启动运行**：直接启动 Claude Code 并设置指定配置的环境变量
 
-## 安装
+## 📥 安装
 
 ### 从 GitHub Release 下载（推荐）
 访问 [Releases 页面](https://github.com/punisher1/claude-code-tool/releases) 下载适合您平台的预编译二进制文件：
@@ -44,7 +44,7 @@ cargo build --release
 
 可执行文件将生成在 `target/release/cct` (Windows 上为 `cct.exe`)
 
-## 使用方法
+## 🚀 使用方法
 
 ### 列出所有提供商
 ```bash
@@ -91,12 +91,12 @@ cct start my-deepseek -- -p "hello claude"
 cct start my-deepseek --proxy "http://127.0.0.1:11225"
 ```
 
-## 文件位置
+## 📂 文件位置
 
 - 配置文件：`~/.cct/config.toml` (macOS/Linux) 或 `%USERPROFILE%\.cct\config.toml` (Windows)
 - Claude 设置：`~/.claude/settings.json` (macOS/Linux) 或 `%USERPROFILE%\.claude\settings.json` (Windows)
 
-## 支持的提供商
+## 🔌 支持的提供商
 
 ### 内置提供商
 - **claude-code** - Anthropic Claude Code (官方版)
@@ -109,7 +109,7 @@ cct start my-deepseek --proxy "http://127.0.0.1:11225"
 ### 自定义提供商
 支持添加任何兼容 Anthropic API 格式的第三方提供商。
 
-## 技术特性
+## ⚙️ 技术特性
 
 ### 环境变量类型支持
 配置文件中的环境变量支持三种类型：
@@ -127,7 +127,7 @@ env.API_TIMEOUT_MS = 3000000  # 整数类型
 env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = 1  # 整数标志位
 ```
 
-## 开发
+## 👨‍💻 开发
 
 ### 运行测试
 ```bash
@@ -177,6 +177,6 @@ cargo fmt
 cargo clippy
 ```
 
-## 许可证
+## 📄 许可证
 
 MIT License
