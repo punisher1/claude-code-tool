@@ -103,6 +103,8 @@ cct start my-deepseek --proxy "http://127.0.0.1:11225"
 - **deepseek** - DeepSeek API
 - **kimi-coding** - Kimi for Coding (Moonshot API)
 - **zhipu** - Zhipu GLM API
+- **xiaomi-mimo** - Xiaomi Mimo Coding
+- **minimaxi-m2** - Minimax M2 Coding
 
 ### Custom Providers
 Supports adding any third-party provider compatible with the Anthropic API format.
