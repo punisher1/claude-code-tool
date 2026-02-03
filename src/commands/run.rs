@@ -6,14 +6,14 @@ use console::style;
 use std::collections::HashMap;
 use std::process::{Command as ProcessCommand, Stdio};
 
-pub struct StartCommand {
+pub struct RunCommand {
     pub alias: String,
     pub proxy: Option<String>,
     /// 透传给 claude 的参数
     pub claude_args: Vec<String>,
 }
 
-impl Command for StartCommand {
+impl Command for RunCommand {
     fn execute(self, config: &mut AppConfig) -> Result<()> {
         // 检查是否设置了 current（settings.json 中有 env 配置）
         if config.current.is_some() {
@@ -146,7 +146,7 @@ mod tests {
     use crate::models::{ConfigInstance, Provider};
 
     #[test]
-    fn test_start_command_env_merging() {
+    fn test_run_command_env_merging() {
         // 测试环境变量合并逻辑
         let mut provider_env = HashMap::new();
         provider_env.insert(
