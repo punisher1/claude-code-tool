@@ -1,11 +1,11 @@
 pub mod config;
 pub mod provider;
-pub mod start;
+pub mod run;
 pub mod switch;
 
 pub use config::{AddCommand, ListCommand, RmCommand};
 pub use provider::ProviderCommand;
-pub use start::StartCommand;
+pub use run::RunCommand;
 pub use switch::{UseCommand, ResetCommand};
 
 use crate::models::AppConfig;

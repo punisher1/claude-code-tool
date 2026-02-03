@@ -7,7 +7,7 @@ mod utils;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use commands::{Command, AddCommand, ListCommand, ProviderCommand, UseCommand, ResetCommand, RmCommand, StartCommand};
+use commands::{Command, AddCommand, ListCommand, ProviderCommand, UseCommand, ResetCommand, RmCommand, RunCommand};
 use config_manager::ConfigManager;
 
 #[derive(Parser)]
@@ -62,8 +62,8 @@ enum Commands {
         alias: String,
     },
 
-    /// Start Claude Code with a configuration
-    Start {
+    /// Run Claude Code with a configuration
+    Run {
         /// Configuration alias
         alias: String,
 
@@ -143,8 +143,8 @@ fn main() -> Result<()> {
             let cmd = RmCommand { alias };
             cmd.execute(&mut config)?;
         }
-        Commands::Start { alias, proxy, claude_args } => {
-            let cmd = StartCommand { alias, proxy, claude_args };
+        Commands::Run { alias, proxy, claude_args } => {
+            let cmd = RunCommand { alias, proxy, claude_args };
             cmd.execute(&mut config)?;
         }
     }

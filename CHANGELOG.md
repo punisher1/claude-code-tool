@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5]
+
+### Changed
+- Renamed `start` command to `run` command for better clarity (`cct run <alias>`).
+- Updated documentation to reflect the command name change.
+
+## [0.1.4]
+
 ### Documentation
 - Added Chinese localization for README (`README_zh-CN.md`).
 - Added badges for Release, Platform, Downloads, and License to README.

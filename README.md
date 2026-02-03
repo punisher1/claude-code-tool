@@ -25,7 +25,7 @@ Claude Code API Switching Tool - Effortlessly manage multiple API providers and 
     - [Remove a custom provider](#remove-a-custom-provider)
     - [Add an API configuration](#add-an-api-configuration)
     - [Use a configuration](#use-a-configuration)
-    - [Start Claude Code](#start-claude-code)
+    - [Run Claude Code](#run-claude-code)
   - [📂 File Locations](#-file-locations)
   - [🔌 Supported Providers](#-supported-providers)
     - [Built-in Providers](#built-in-providers)
@@ -110,18 +110,18 @@ cct use <alias>
 cct use my-deepseek
 ```
 
-### Start Claude Code
+### Run Claude Code
 ```bash
-# Start Claude Code with a specific configuration
-cct start <alias>
+# Run Claude Code with a specific configuration
+cct run <alias>
 # Example
-cct start my-deepseek
+cct run my-deepseek
 
-# Start and pass arguments to claude
-cct start my-deepseek -- -p "hello claude"
+# Run and pass arguments to claude
+cct run my-deepseek -- -p "hello claude"
 
-# Start and set proxy
-cct start my-deepseek --proxy "http://127.0.0.1:11225"
+# Run and set proxy
+cct run my-deepseek --proxy "http://127.0.0.1:11225"
 ```
 
 ## 📂 File Locations

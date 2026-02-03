@@ -24,7 +24,7 @@ Claude Code API 切换工具 - 轻松管理并即时切换多个 API 提供商�
     - [删除自定义提供商](#删除自定义提供商)
     - [添加 API 配置](#添加-api-配置)
     - [使用配置](#使用配置)
-    - [启动 Claude Code](#启动-claude-code)
+    - [运行 Claude Code](#运行-claude-code)
   - [📂 文件位置](#-文件位置)
   - [🔌 支持的提供商](#-支持的提供商)
     - [内置提供商](#内置提供商)
@@ -110,18 +110,18 @@ cct use <alias>
 cct use my-deepseek
 ```
 
-### 启动 Claude Code
+### 运行 Claude Code
 ```bash
-# 使用指定配置启动 Claude Code
-cct start <alias>
+# 使用指定配置运行 Claude Code
+cct run <alias>
 # 例如
-cct start my-deepseek
+cct run my-deepseek
 
-# 启动并传递参数给 claude
-cct start my-deepseek -- -p "hello claude"
+# 运行并传递参数给 claude
+cct run my-deepseek -- -p "hello claude"
 
-# 启动并设置代理
-cct start my-deepseek --proxy "http://127.0.0.1:11225"
+# 运行并设置代理
+cct run my-deepseek --proxy "http://127.0.0.1:11225"
 ```
 
 ## 📂 文件位置
