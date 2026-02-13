@@ -44,10 +44,10 @@ lazy_static! {
                 name: "zhipu",
                 description: "Zhipu GLM Coding",
                 base_url: "https://open.bigmodel.cn/api/anthropic",
-                model: "glm-4.7",
+                model: "glm-5",
                 haiku_model: "glm-4.5-air",
-                sonnet_model: "glm-4.7",
-                opus_model: "glm-4.7",
+                sonnet_model: "glm-5",
+                opus_model: "glm-5",
                 env: None,
             },
             ProviderDef {
