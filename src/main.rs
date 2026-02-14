@@ -94,6 +94,9 @@ enum ProviderSubCommand {
         /// Provider name
         name: String,
     },
+
+    /// Export built-in providers to ~/.cct/providers.toml
+    Init,
 }
 
 fn main() -> Result<()> {
@@ -110,6 +113,7 @@ fn main() -> Result<()> {
                 ProviderSubCommand::List => ProviderCommand::List,
                 ProviderSubCommand::Add { name } => ProviderCommand::Add { name },
                 ProviderSubCommand::Rm { name } => ProviderCommand::Remove { name },
+                ProviderSubCommand::Init => ProviderCommand::Init,
             };
             cmd.execute(&mut config)?;
         }

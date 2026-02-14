@@ -181,7 +181,7 @@ mod tests {
         // 执行一次备份，触发清理
         backup_file(&file_path, "settings", 5)?;
 
-        // 验证只保留 10 个备份（新增1个 + 保留9个旧的 = 10个）
+        // 验证只保留 5 个备份（max_backups=5）
         let entries: Vec<_> = fs::read_dir(temp_dir.path())?
             .filter_map(|e| e.ok())
             .filter(|e| {
@@ -190,7 +190,7 @@ mod tests {
             })
             .collect();
 
-        assert_eq!(entries.len(), 10);
+        assert_eq!(entries.len(), 5);
 
         Ok(())
     }

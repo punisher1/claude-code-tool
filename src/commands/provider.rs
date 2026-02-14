@@ -14,6 +14,7 @@ pub enum ProviderCommand {
     List,
     Add { name: Option<String> },
     Remove { name: String },
+    Init,
 }
 
 #[derive(Tabled)]
@@ -42,22 +43,21 @@ impl Command for ProviderCommand {
             ProviderCommand::List => list_providers(config),
             ProviderCommand::Add { name } => add_provider(config, name),
             ProviderCommand::Remove { name } => remove_provider(config, name),
+            ProviderCommand::Init => init_providers(),
         }
     }
 }
 
 fn list_providers(config: &AppConfig) -> Result<()> {
-    let merged = ProviderStore::get_merged_providers(&config.providers).map_err(|e| anyhow::anyhow!("{}", e))?;
+    // 加载 providers.toml
+    let file_providers = ConfigManager::load_providers().unwrap_or_else(|_| HashMap::new());
+
+    let merged = ProviderStore::get_merged_providers_with_override(&config.providers, &file_providers);
 
     let mut rows = Vec::new();
 
     for (name, provider) in &merged {
-        let provider_type = if ProviderStore::is_builtin_provider(name) {
-            "内置"
-        } else {
-            "自定义"
-        }
-        .to_string();
+        let provider_type = ProviderStore::get_provider_source(name, &file_providers, &config.providers).to_string();
 
         let description = provider.description.clone().unwrap_or_else(|| "-".to_string());
 
@@ -138,13 +138,13 @@ fn add_provider(config: &mut AppConfig, name: Option<String>) -> Result<()> {
 
     validate_provider_name(&name)?;
 
-    // Check if it's a built-in provider
+    // 检查是否为内置 provider，提示用户将创建覆盖配置
     if ProviderStore::is_builtin_provider(&name) {
-        return Err(anyhow::anyhow!(
-            "Cannot add provider '{}' because it is a built-in provider. \
-             Please choose a different name for your custom provider.",
+        println!(
+            "{} 内置 provider '{}' 将被覆盖。",
+            style("!").yellow(),
             name
-        ));
+        );
     }
 
     if config.providers.contains_key(&name) {
@@ -270,37 +270,82 @@ fn add_provider(config: &mut AppConfig, name: Option<String>) -> Result<()> {
 }
 
 fn remove_provider(config: &mut AppConfig, name: String) -> Result<()> {
-    // Check if it's a built-in provider
-    if ProviderStore::is_builtin_provider(&name) {
-        return Err(anyhow::anyhow!("Cannot remove built-in provider '{}'", name));
-    }
-
-    // Check if any configs are using this provider
-    let mut used_by = Vec::new();
-    for (config_name, config_instance) in &config.configs {
-        if config_instance.provider == name {
-            used_by.push(config_name.clone());
+    // 检查是否在 config.toml 中
+    if config.providers.contains_key(&name) {
+        // 检查是否有配置使用此 provider
+        let mut used_by = Vec::new();
+        for (config_name, config_instance) in &config.configs {
+            if config_instance.provider == name {
+                used_by.push(config_name.clone());
+            }
         }
+
+        if !used_by.is_empty() {
+            return Err(anyhow::anyhow!(
+                "Cannot remove provider '{}' because it's being used by configurations: {}",
+                name,
+                used_by.join(", ")
+            ));
+        }
+
+        config.providers.remove(&name);
+
+        let manager = ConfigManager::new()?;
+        manager.save_config(config)?;
+
+        println!("{} Provider '{}' removed from config.toml successfully!", style("✓").green(), name);
+        return Ok(());
     }
 
-    if !used_by.is_empty() {
+    // 检查是否在 providers.toml 中
+    let file_providers = ConfigManager::load_providers().unwrap_or_else(|_| HashMap::new());
+    if file_providers.contains_key(&name) {
+        // 从 providers.toml 中移除
+        let mut updated = file_providers.clone();
+        updated.remove(&name);
+        ConfigManager::save_providers(&updated)?;
+
+        println!("{} Provider '{}' removed from providers.toml successfully!", style("✓").green(), name);
+        return Ok(());
+    }
+
+    // 检查是否为内置 provider（不能删除，只能通过覆盖）
+    if ProviderStore::is_builtin_provider(&name) {
         return Err(anyhow::anyhow!(
-            "Cannot remove provider '{}' because it's being used by configurations: {}",
-            name,
-            used_by.join(", ")
+            "Cannot remove built-in provider '{}'. You can override it by adding a custom provider with the same name.",
+            name
         ));
     }
 
-    // Remove the provider
-    if config.providers.remove(&name).is_none() {
-        return Err(anyhow::anyhow!("Provider '{}' not found", name));
+    Err(anyhow::anyhow!("Provider '{}' not found", name))
+}
+
+/// 导出内置 provider 到 ~/.cct/providers.toml
+fn init_providers() -> Result<()> {
+    let providers_path = ConfigManager::get_providers_path()?;
+
+    // 检查文件是否已存在
+    if providers_path.exists() {
+        println!(
+            "{} providers.toml 已存在于: {:?}",
+            style("!").yellow(),
+            providers_path
+        );
+        println!("如果继续，将覆盖现有文件。");
     }
 
-    // Save config
-    let manager = ConfigManager::new()?;
-    manager.save_config(config)?;
+    // 获取内置 providers
+    let builtin_providers = ProviderStore::get_builtin_providers();
 
-    println!("{} Provider '{}' removed successfully!", style("✓").green(), name);
+    // 保存到文件
+    ConfigManager::save_providers(&builtin_providers)?;
+
+    println!(
+        "{} 内置 providers 已导出到: {:?}",
+        style("✓").green(),
+        providers_path
+    );
+    println!("共导出 {} 个 provider 配置。", builtin_providers.len());
 
     Ok(())
 }

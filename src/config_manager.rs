@@ -1,5 +1,6 @@
-use crate::models::AppConfig;
+use crate::models::{AppConfig, Provider};
 use anyhow::{Context, Result};
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -21,6 +22,53 @@ impl ConfigManager {
     pub fn get_config_path() -> Result<PathBuf> {
         let home_dir = dirs::home_dir().context("Failed to get home directory")?;
         Ok(home_dir.join(".cct").join("config.toml"))
+    }
+
+    /// 获取 providers.toml 文件路径 (~/.cct/providers.toml)
+    pub fn get_providers_path() -> Result<PathBuf> {
+        let home_dir = dirs::home_dir().context("Failed to get home directory")?;
+        Ok(home_dir.join(".cct").join("providers.toml"))
+    }
+
+    /// 从 providers.toml 加载自定义 provider
+    pub fn load_providers() -> Result<HashMap<String, Provider>> {
+        let providers_path = Self::get_providers_path()?;
+        Self::load_providers_from_path(&providers_path)
+    }
+
+    /// 从指定路径加载 providers
+    pub fn load_providers_from_path(path: &Path) -> Result<HashMap<String, Provider>> {
+        if !path.exists() {
+            return Ok(HashMap::new());
+        }
+
+        let content = fs::read_to_string(path)
+            .with_context(|| format!("Failed to read providers file: {:?}", path))?;
+
+        // providers.toml 格式：直接是 [provider_name] 表
+        // 需要解析为 HashMap<String, Provider>
+        let providers: HashMap<String, Provider> = toml::from_str(&content)
+            .with_context(|| format!("Failed to parse providers TOML: {:?}", path))?;
+
+        Ok(providers)
+    }
+
+    /// 保存 providers 到 providers.toml 文件
+    pub fn save_providers(providers: &HashMap<String, Provider>) -> Result<()> {
+        let providers_path = Self::get_providers_path()?;
+
+        if let Some(parent) = providers_path.parent() {
+            fs::create_dir_all(parent)
+                .with_context(|| format!("Failed to create providers directory: {:?}", parent))?;
+        }
+
+        let content =
+            toml::to_string_pretty(providers).context("Failed to serialize providers to TOML")?;
+
+        fs::write(&providers_path, content)
+            .with_context(|| format!("Failed to write providers file: {:?}", providers_path))?;
+
+        Ok(())
     }
 
     pub fn load_config() -> Result<AppConfig> {

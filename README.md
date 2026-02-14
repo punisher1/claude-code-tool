@@ -96,6 +96,13 @@ cct provider add
 cct provider rm <name>
 ```
 
+### Export built-in providers
+```bash
+# Export all built-in providers to ~/.cct/providers.toml
+cct provider init
+```
+This creates a `providers.toml` file that you can edit to customize provider configurations.
+
 ### Add an API configuration
 ```bash
 cct add -p <provider> -a <api_key> <alias>
@@ -127,6 +134,7 @@ cct run my-deepseek --proxy "http://127.0.0.1:11225"
 ## 📂 File Locations
 
 - Config File: `~/.cct/config.toml` (macOS/Linux) or `%USERPROFILE%\.cct\config.toml` (Windows)
+- Providers File: `~/.cct/providers.toml` (optional, for customizing providers)
 - Claude Settings: `~/.claude/settings.json` (macOS/Linux) or `%USERPROFILE%\.claude\settings.json` (Windows)
 
 ## 🔌 Supported Providers

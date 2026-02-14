@@ -145,32 +145,65 @@ lazy_static! {
 pub struct ProviderStore;
 
 impl ProviderStore {
-    pub fn get_merged_providers(
-        custom_providers: &HashMap<String, Provider>,
-    ) -> Result<HashMap<String, Provider>, String> {
-        // First check if any custom provider conflicts with built-in providers
-        for name in custom_providers.keys() {
-            if BUILTIN_PROVIDERS.contains_key(name) {
-                return Err(format!(
-                    "Custom provider '{}' cannot have the same name as a built-in provider. \
-                     Please choose a different name for your custom provider.",
-                    name
-                ));
-            }
-        }
+    /// 获取内置 provider 的克隆
+    pub fn get_builtin_providers() -> HashMap<String, Provider> {
+        BUILTIN_PROVIDERS.clone()
+    }
 
+    /// 合并 providers，按优先级：内置 → providers.toml → config.toml providers
+    /// 后面的会覆盖前面的同名 provider
+    pub fn get_merged_providers(
+        config_providers: &HashMap<String, Provider>,
+    ) -> HashMap<String, Provider> {
+        // 加载 providers.toml 中的 provider
+        let file_providers = crate::config_manager::ConfigManager::load_providers()
+            .unwrap_or_else(|_| HashMap::new());
+
+        Self::get_merged_providers_with_override(config_providers, &file_providers)
+    }
+
+    /// 合并 providers（带 providers.toml 覆盖），用于测试
+    pub fn get_merged_providers_with_override(
+        config_providers: &HashMap<String, Provider>,
+        file_providers: &HashMap<String, Provider>,
+    ) -> HashMap<String, Provider> {
+        // 1. 从内置 provider 开始
         let mut merged = BUILTIN_PROVIDERS.clone();
 
-        // Merge custom providers (they don't conflict with built-in ones)
-        for (name, provider) in custom_providers {
+        // 2. 应用 providers.toml 覆盖
+        for (name, provider) in file_providers {
             merged.insert(name.clone(), provider.clone());
         }
 
-        Ok(merged)
+        // 3. 应用 config.toml providers 覆盖
+        for (name, provider) in config_providers {
+            merged.insert(name.clone(), provider.clone());
+        }
+
+        merged
     }
 
+    /// 判断 provider 是否为内置 provider
     pub fn is_builtin_provider(name: &str) -> bool {
         BUILTIN_PROVIDERS.contains_key(name)
+    }
+
+    /// 判断 provider 来源类型
+    /// 返回: "内置", "providers.toml", "config.toml"
+    pub fn get_provider_source(
+        name: &str,
+        file_providers: &HashMap<String, Provider>,
+        config_providers: &HashMap<String, Provider>,
+    ) -> &'static str {
+        if config_providers.contains_key(name) {
+            "config.toml"
+        } else if file_providers.contains_key(name) {
+            "providers.toml"
+        } else if BUILTIN_PROVIDERS.contains_key(name) {
+            "内置"
+        } else {
+            "未知"
+        }
     }
 }
 
@@ -181,7 +214,7 @@ mod tests {
 
     #[test]
     fn test_provider_merge() {
-        let mut custom_providers = HashMap::new();
+        let mut config_providers = HashMap::new();
 
         // Add a custom provider
         let mut custom_env = HashMap::new();
@@ -193,9 +226,9 @@ mod tests {
             description: Some("Custom Provider".to_string()),
             env: Some(custom_env),
         };
-        custom_providers.insert("custom".to_string(), custom_provider.clone());
+        config_providers.insert("custom".to_string(), custom_provider.clone());
 
-        let merged = ProviderStore::get_merged_providers(&custom_providers).unwrap();
+        let merged = ProviderStore::get_merged_providers_with_override(&config_providers, &HashMap::new());
 
         // Verify built-in providers exist
         assert!(merged.contains_key("claude-code"));
@@ -219,10 +252,10 @@ mod tests {
     }
 
     #[test]
-    fn test_cannot_override_builtin_provider() {
-        let mut custom_providers = HashMap::new();
+    fn test_can_override_builtin_provider_with_file() {
+        // 测试 providers.toml 可以覆盖内置 provider
+        let mut file_providers = HashMap::new();
 
-        // Try to override a built-in provider
         let mut override_env = HashMap::new();
         override_env.insert(
             "ANTHROPIC_BASE_URL".to_string(),
@@ -232,14 +265,42 @@ mod tests {
             description: Some("Updated DeepSeek".to_string()),
             env: Some(override_env),
         };
-        custom_providers.insert("deepseek".to_string(), override_provider.clone());
+        file_providers.insert("deepseek".to_string(), override_provider.clone());
 
-        // This should return an error
-        let result = ProviderStore::get_merged_providers(&custom_providers);
-        assert!(result.is_err());
+        let merged = ProviderStore::get_merged_providers_with_override(&HashMap::new(), &file_providers);
 
-        let error_msg = result.unwrap_err();
-        assert!(error_msg.contains("Custom provider 'deepseek' cannot have the same name as a built-in provider"));
+        // 验证覆盖生效
+        assert!(merged.contains_key("deepseek"));
+        let merged_provider = merged.get("deepseek").unwrap();
+        assert_eq!(merged_provider.description, Some("Updated DeepSeek".to_string()));
+    }
+
+    #[test]
+    fn test_override_priority() {
+        // 测试优先级：config.toml > providers.toml > 内置
+
+        // providers.toml 覆盖
+        let mut file_providers = HashMap::new();
+        file_providers.insert("deepseek".to_string(), Provider {
+            description: Some("File Override".to_string()),
+            env: None,
+        });
+
+        // config.toml 覆盖
+        let mut config_providers = HashMap::new();
+        config_providers.insert("deepseek".to_string(), Provider {
+            description: Some("Config Override".to_string()),
+            env: None,
+        });
+
+        let merged = ProviderStore::get_merged_providers_with_override(&config_providers, &file_providers);
+
+        // config.toml 优先级最高
+        assert_eq!(merged.get("deepseek").unwrap().description, Some("Config Override".to_string()));
+
+        // 只有 file_providers 时
+        let merged_file_only = ProviderStore::get_merged_providers_with_override(&HashMap::new(), &file_providers);
+        assert_eq!(merged_file_only.get("deepseek").unwrap().description, Some("File Override".to_string()));
     }
 
     #[test]
@@ -250,5 +311,32 @@ mod tests {
         assert!(ProviderStore::is_builtin_provider("zhipu"));
         assert!(!ProviderStore::is_builtin_provider("custom"));
         assert!(!ProviderStore::is_builtin_provider("unknown"));
+    }
+
+    #[test]
+    fn test_get_provider_source() {
+        let mut file_providers = HashMap::new();
+        file_providers.insert("deepseek".to_string(), Provider {
+            description: Some("File".to_string()),
+            env: None,
+        });
+
+        let mut config_providers = HashMap::new();
+        config_providers.insert("kimi-coding".to_string(), Provider {
+            description: Some("Config".to_string()),
+            env: None,
+        });
+
+        // 内置 provider
+        assert_eq!(ProviderStore::get_provider_source("claude-code", &file_providers, &config_providers), "内置");
+
+        // providers.toml 覆盖的内置 provider
+        assert_eq!(ProviderStore::get_provider_source("deepseek", &file_providers, &config_providers), "providers.toml");
+
+        // config.toml 覆盖的内置 provider
+        assert_eq!(ProviderStore::get_provider_source("kimi-coding", &file_providers, &config_providers), "config.toml");
+
+        // 未知 provider
+        assert_eq!(ProviderStore::get_provider_source("unknown", &file_providers, &config_providers), "未知");
     }
 }

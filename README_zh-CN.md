@@ -96,6 +96,13 @@ cct provider add
 cct provider rm <name>
 ```
 
+### 导出内置提供商
+```bash
+# 导出所有内置提供商到 ~/.cct/providers.toml
+cct provider init
+```
+这将创建一个 `providers.toml` 文件，你可以编辑它来自定义提供商配置。
+
 ### 添加 API 配置
 ```bash
 cct add -p <provider> -a <api_key> <alias>
@@ -127,6 +134,7 @@ cct run my-deepseek --proxy "http://127.0.0.1:11225"
 ## 📂 文件位置
 
 - 配置文件：`~/.cct/config.toml` (macOS/Linux) 或 `%USERPROFILE%\.cct\config.toml` (Windows)
+- 提供商文件：`~/.cct/providers.toml`（可选，用于自定义提供商）
 - Claude 设置：`~/.claude/settings.json` (macOS/Linux) 或 `%USERPROFILE%\.claude\settings.json` (Windows)
 
 ## 🔌 支持的提供商

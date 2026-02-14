@@ -77,7 +77,7 @@ impl Command for UseCommand {
         }
 
         // Get merged providers
-        let merged_providers = ProviderStore::get_merged_providers(&config.providers).map_err(|e| anyhow!("{}", e))?;
+        let merged_providers = ProviderStore::get_merged_providers(&config.providers);
 
         // Get the provider
         let provider = merged_providers

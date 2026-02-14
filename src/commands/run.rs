@@ -39,8 +39,7 @@ impl Command for RunCommand {
             .ok_or_else(|| anyhow!("配置 '{}' 不存在", self.alias))?;
 
         // 获取合并后的提供商
-        let merged_providers = ProviderStore::get_merged_providers(&config.providers)
-            .map_err(|e| anyhow!("{}", e))?;
+        let merged_providers = ProviderStore::get_merged_providers(&config.providers);
 
         // 获取提供商
         let provider = merged_providers

@@ -27,7 +27,7 @@ impl Command for AddCommand {
         }
 
         // Get merged providers to validate
-        let merged_providers = ProviderStore::get_merged_providers(&config.providers).map_err(|e| anyhow!("{}", e))?;
+        let merged_providers = ProviderStore::get_merged_providers(&config.providers);
 
         // Check if provider exists
         if !merged_providers.contains_key(&self.provider) {
