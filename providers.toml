@@ -1,0 +1,66 @@
+# 内置 providers 配置
+# 此文件可以通过 `cct provider init` 命令导出到 ~/.cct/providers.toml
+# 修改此文件可以覆盖内置 provider 配置
+
+[claude-code]
+description = "Anthropic Claude Code"
+
+[claude-console]
+description = "Anthropic Claude Console"
+[claude-console.env]
+ANTHROPIC_BASE_URL = "https://api.anthropic.com"
+
+[deepseek]
+description = "DeepSeek API"
+[deepseek.env]
+ANTHROPIC_BASE_URL = "https://api.deepseek.com/anthropic"
+ANTHROPIC_MODEL = "deepseek-chat"
+ANTHROPIC_DEFAULT_HAIKU_MODEL = "deepseek-chat"
+ANTHROPIC_DEFAULT_SONNET_MODEL = "deepseek-chat"
+ANTHROPIC_DEFAULT_OPUS_MODEL = "deepseek-chat"
+API_TIMEOUT_MS = 3000000
+CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = 1
+
+[kimi-coding]
+description = "Kimi Coding"
+[kimi-coding.env]
+ANTHROPIC_BASE_URL = "https://api.kimi.com/coding"
+ANTHROPIC_MODEL = "kimi-for-coding"
+ANTHROPIC_DEFAULT_HAIKU_MODEL = "kimi-for-coding"
+ANTHROPIC_DEFAULT_SONNET_MODEL = "kimi-for-coding"
+ANTHROPIC_DEFAULT_OPUS_MODEL = "kimi-for-coding"
+API_TIMEOUT_MS = 3000000
+CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = 1
+
+[zhipu]
+description = "Zhipu GLM Coding"
+[zhipu.env]
+ANTHROPIC_BASE_URL = "https://open.bigmodel.cn/api/anthropic"
+ANTHROPIC_MODEL = "glm-5"
+ANTHROPIC_DEFAULT_HAIKU_MODEL = "glm-4.5-air"
+ANTHROPIC_DEFAULT_SONNET_MODEL = "glm-5"
+ANTHROPIC_DEFAULT_OPUS_MODEL = "glm-5"
+API_TIMEOUT_MS = 3000000
+CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = 1
+
+[xiaomi-mimo]
+description = "Xiaomi Mimo Coding"
+[xiaomi-mimo.env]
+ANTHROPIC_BASE_URL = "https://api.xiaomimimo.com/anthropic"
+ANTHROPIC_MODEL = "mimo-v2-flash"
+ANTHROPIC_DEFAULT_HAIKU_MODEL = "mimo-v2-flash"
+ANTHROPIC_DEFAULT_SONNET_MODEL = "mimo-v2-flash"
+ANTHROPIC_DEFAULT_OPUS_MODEL = "mimo-v2-flash"
+API_TIMEOUT_MS = 3000000
+CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = 1
+
+[minimaxi-m2]
+description = "Minimax M2 Coding"
+[minimaxi-m2.env]
+ANTHROPIC_BASE_URL = "https://api.minimaxi.com/anthropic"
+ANTHROPIC_MODEL = "MiniMax-M2.1"
+ANTHROPIC_DEFAULT_HAIKU_MODEL = "MiniMax-M2.1"
+ANTHROPIC_DEFAULT_SONNET_MODEL = "MiniMax-M2.1"
+ANTHROPIC_DEFAULT_OPUS_MODEL = "MiniMax-M2.1"
+API_TIMEOUT_MS = 3000000
+CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = 1

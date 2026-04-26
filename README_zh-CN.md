@@ -52,7 +52,39 @@ Claude Code API 切换工具 - 轻松管理并即时切换多个 API 提供商�
 
 ## 📥 安装
 
-### 从 GitHub Release 下载（推荐）
+### 一键安装（推荐）
+
+**Linux / macOS:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/punisher1/claude-code-tool/main/install.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/punisher1/claude-code-tool/main/install.ps1 | iex
+```
+
+**安装指定版本:**
+```bash
+# Linux / macOS
+curl -fsSL https://raw.githubusercontent.com/punisher1/claude-code-tool/main/install.sh | bash -s -- --version 0.1.5
+```
+```powershell
+# Windows
+.\install.ps1 -Version 0.1.5
+```
+
+**使用代理安装:**
+```bash
+# Linux / macOS
+curl -fsSL https://raw.githubusercontent.com/punisher1/claude-code-tool/main/install.sh | bash -s -- --proxy http://127.0.0.1:11224
+```
+```powershell
+# Windows
+.\install.ps1 -Proxy http://127.0.0.1:11224
+```
+
+### 从 GitHub Release 下载
 访问 [Releases 页面](https://github.com/punisher1/claude-code-tool/releases) 下载适合您平台的预编译二进制文件：
 
 - **Linux x86_64**: `cct-Linux-x86_64.tar.gz`

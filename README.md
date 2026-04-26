@@ -52,7 +52,39 @@ Claude Code API Switching Tool - Effortlessly manage multiple API providers and 
 
 ## 📥 Installation
 
-### Download from GitHub Release (Recommended)
+### Quick Install (Recommended)
+
+**Linux / macOS:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/punisher1/claude-code-tool/main/install.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/punisher1/claude-code-tool/main/install.ps1 | iex
+```
+
+**Install a specific version:**
+```bash
+# Linux / macOS
+curl -fsSL https://raw.githubusercontent.com/punisher1/claude-code-tool/main/install.sh | bash -s -- --version 0.1.5
+```
+```powershell
+# Windows
+.\install.ps1 -Version 0.1.5
+```
+
+**Install with proxy:**
+```bash
+# Linux / macOS
+curl -fsSL https://raw.githubusercontent.com/punisher1/claude-code-tool/main/install.sh | bash -s -- --proxy http://127.0.0.1:11224
+```
+```powershell
+# Windows
+.\install.ps1 -Proxy http://127.0.0.1:11224
+```
+
+### Download from GitHub Release
 Visit the [Releases Page](https://github.com/punisher1/claude-code-tool/releases) to download pre-compiled binaries for your platform:
 
 - **Linux x86_64**: `cct-Linux-x86_64.tar.gz`
