@@ -151,8 +151,11 @@ cct use my-deepseek
 
 ### Run Claude Code
 ```bash
+# Run Claude Code with the current configuration
+cct run
+
 # Run Claude Code with a specific configuration
-cct run <alias>
+cct run [alias]
 # Example
 cct run my-deepseek
 

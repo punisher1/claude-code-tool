@@ -7,7 +7,10 @@ mod utils;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use commands::{Command, AddCommand, ListCommand, ProviderCommand, UseCommand, ResetCommand, RmCommand, RunCommand};
+use commands::{
+    AddCommand, Command, ListCommand, ProviderCommand, ResetCommand, RmCommand, RunCommand,
+    UpdateCommand, UseCommand,
+};
 use config_manager::ConfigManager;
 
 #[derive(Parser)]
@@ -56,6 +59,9 @@ enum Commands {
     /// Clear all provider settings
     Reset,
 
+    /// Update cct from the latest GitHub release
+    Update,
+
     /// Remove a configuration
     Rm {
         /// Configuration alias
@@ -64,8 +70,8 @@ enum Commands {
 
     /// Run Claude Code with a configuration
     Run {
-        /// Configuration alias
-        alias: String,
+        /// Configuration alias (optional, defaults to current configuration)
+        alias: Option<String>,
 
         /// HTTP/HTTPS proxy URL (e.g., http://127.0.0.1:11225)
         #[arg(long)]
@@ -143,12 +149,24 @@ fn main() -> Result<()> {
             let cmd = ResetCommand;
             cmd.execute(&mut config)?;
         }
+        Commands::Update => {
+            let cmd = UpdateCommand;
+            cmd.execute(&mut config)?;
+        }
         Commands::Rm { alias } => {
             let cmd = RmCommand { alias };
             cmd.execute(&mut config)?;
         }
-        Commands::Run { alias, proxy, claude_args } => {
-            let cmd = RunCommand { alias, proxy, claude_args };
+        Commands::Run {
+            alias,
+            proxy,
+            claude_args,
+        } => {
+            let cmd = RunCommand {
+                alias,
+                proxy,
+                claude_args,
+            };
             cmd.execute(&mut config)?;
         }
     }

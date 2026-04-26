@@ -24,11 +24,18 @@ lazy_static! {
                 name: "deepseek",
                 description: "DeepSeek API",
                 base_url: "https://api.deepseek.com/anthropic",
-                model: "deepseek-chat",
-                haiku_model: "deepseek-chat",
-                sonnet_model: "deepseek-chat",
-                opus_model: "deepseek-chat",
-                env: None,
+                model: "deepseek-v4-pro",
+                haiku_model: "deepseek-v4-flash",
+                sonnet_model: "deepseek-v4-pro",
+                opus_model: "deepseek-v4-pro",
+                env: Some({
+                    let mut env = HashMap::new();
+                    env.insert(
+                        "CLAUDE_CODE_EFFORT_LEVEL",
+                        crate::models::EnvValue::String("max".to_string()),
+                    );
+                    env
+                }),
             },
             ProviderDef {
                 name: "kimi-coding",
@@ -44,30 +51,30 @@ lazy_static! {
                 name: "zhipu",
                 description: "Zhipu GLM Coding",
                 base_url: "https://open.bigmodel.cn/api/anthropic",
-                model: "glm-5",
+                model: "glm-5.1",
                 haiku_model: "glm-4.5-air",
-                sonnet_model: "glm-5",
-                opus_model: "glm-5",
+                sonnet_model: "glm-5.1",
+                opus_model: "glm-5.1",
                 env: None,
             },
             ProviderDef {
                 name: "xiaomi-mimo",
                 description: "Xiaomi Mimo Coding",
                 base_url: "https://api.xiaomimimo.com/anthropic",
-                model: "mimo-v2-flash",
-                haiku_model: "mimo-v2-flash",
-                sonnet_model: "mimo-v2-flash",
-                opus_model: "mimo-v2-flash",
+                model: "mimo-v2.5-pro",
+                haiku_model: "mimo-v2.5-pro",
+                sonnet_model: "mimo-v2.5-pro",
+                opus_model: "mimo-v2.5-pro",
                 env: None,
             },
             ProviderDef {
                 name: "minimaxi-m2",
                 description: "Minimax M2 Coding",
                 base_url: "https://api.minimaxi.com/anthropic",
-                model: "MiniMax-M2.1",
-                haiku_model: "MiniMax-M2.1",
-                sonnet_model: "MiniMax-M2.1",
-                opus_model: "MiniMax-M2.1",
+                model: "MiniMax-M2.7",
+                haiku_model: "MiniMax-M2.7",
+                sonnet_model: "MiniMax-M2.7",
+                opus_model: "MiniMax-M2.7",
                 env: None,
             },
         ];
@@ -213,6 +220,34 @@ mod tests {
     use crate::models::EnvValue;
 
     #[test]
+    fn test_deepseek_builtin_models_follow_current_api_docs() {
+        let providers = ProviderStore::get_builtin_providers();
+        let deepseek = providers.get("deepseek").unwrap();
+        let env = deepseek.env.as_ref().unwrap();
+
+        assert_eq!(
+            env.get("ANTHROPIC_MODEL"),
+            Some(&EnvValue::String("deepseek-v4-pro".to_string()))
+        );
+        assert_eq!(
+            env.get("ANTHROPIC_DEFAULT_HAIKU_MODEL"),
+            Some(&EnvValue::String("deepseek-v4-flash".to_string()))
+        );
+        assert_eq!(
+            env.get("ANTHROPIC_DEFAULT_SONNET_MODEL"),
+            Some(&EnvValue::String("deepseek-v4-pro".to_string()))
+        );
+        assert_eq!(
+            env.get("ANTHROPIC_DEFAULT_OPUS_MODEL"),
+            Some(&EnvValue::String("deepseek-v4-pro".to_string()))
+        );
+        assert_eq!(
+            env.get("CLAUDE_CODE_EFFORT_LEVEL"),
+            Some(&EnvValue::String("max".to_string()))
+        );
+    }
+
+    #[test]
     fn test_provider_merge() {
         let mut config_providers = HashMap::new();
 
@@ -228,7 +263,8 @@ mod tests {
         };
         config_providers.insert("custom".to_string(), custom_provider.clone());
 
-        let merged = ProviderStore::get_merged_providers_with_override(&config_providers, &HashMap::new());
+        let merged =
+            ProviderStore::get_merged_providers_with_override(&config_providers, &HashMap::new());
 
         // Verify built-in providers exist
         assert!(merged.contains_key("claude-code"));
@@ -267,12 +303,16 @@ mod tests {
         };
         file_providers.insert("deepseek".to_string(), override_provider.clone());
 
-        let merged = ProviderStore::get_merged_providers_with_override(&HashMap::new(), &file_providers);
+        let merged =
+            ProviderStore::get_merged_providers_with_override(&HashMap::new(), &file_providers);
 
         // 验证覆盖生效
         assert!(merged.contains_key("deepseek"));
         let merged_provider = merged.get("deepseek").unwrap();
-        assert_eq!(merged_provider.description, Some("Updated DeepSeek".to_string()));
+        assert_eq!(
+            merged_provider.description,
+            Some("Updated DeepSeek".to_string())
+        );
     }
 
     #[test]
@@ -281,26 +321,40 @@ mod tests {
 
         // providers.toml 覆盖
         let mut file_providers = HashMap::new();
-        file_providers.insert("deepseek".to_string(), Provider {
-            description: Some("File Override".to_string()),
-            env: None,
-        });
+        file_providers.insert(
+            "deepseek".to_string(),
+            Provider {
+                description: Some("File Override".to_string()),
+                env: None,
+            },
+        );
 
         // config.toml 覆盖
         let mut config_providers = HashMap::new();
-        config_providers.insert("deepseek".to_string(), Provider {
-            description: Some("Config Override".to_string()),
-            env: None,
-        });
+        config_providers.insert(
+            "deepseek".to_string(),
+            Provider {
+                description: Some("Config Override".to_string()),
+                env: None,
+            },
+        );
 
-        let merged = ProviderStore::get_merged_providers_with_override(&config_providers, &file_providers);
+        let merged =
+            ProviderStore::get_merged_providers_with_override(&config_providers, &file_providers);
 
         // config.toml 优先级最高
-        assert_eq!(merged.get("deepseek").unwrap().description, Some("Config Override".to_string()));
+        assert_eq!(
+            merged.get("deepseek").unwrap().description,
+            Some("Config Override".to_string())
+        );
 
         // 只有 file_providers 时
-        let merged_file_only = ProviderStore::get_merged_providers_with_override(&HashMap::new(), &file_providers);
-        assert_eq!(merged_file_only.get("deepseek").unwrap().description, Some("File Override".to_string()));
+        let merged_file_only =
+            ProviderStore::get_merged_providers_with_override(&HashMap::new(), &file_providers);
+        assert_eq!(
+            merged_file_only.get("deepseek").unwrap().description,
+            Some("File Override".to_string())
+        );
     }
 
     #[test]
@@ -316,27 +370,45 @@ mod tests {
     #[test]
     fn test_get_provider_source() {
         let mut file_providers = HashMap::new();
-        file_providers.insert("deepseek".to_string(), Provider {
-            description: Some("File".to_string()),
-            env: None,
-        });
+        file_providers.insert(
+            "deepseek".to_string(),
+            Provider {
+                description: Some("File".to_string()),
+                env: None,
+            },
+        );
 
         let mut config_providers = HashMap::new();
-        config_providers.insert("kimi-coding".to_string(), Provider {
-            description: Some("Config".to_string()),
-            env: None,
-        });
+        config_providers.insert(
+            "kimi-coding".to_string(),
+            Provider {
+                description: Some("Config".to_string()),
+                env: None,
+            },
+        );
 
         // 内置 provider
-        assert_eq!(ProviderStore::get_provider_source("claude-code", &file_providers, &config_providers), "内置");
+        assert_eq!(
+            ProviderStore::get_provider_source("claude-code", &file_providers, &config_providers),
+            "内置"
+        );
 
         // providers.toml 覆盖的内置 provider
-        assert_eq!(ProviderStore::get_provider_source("deepseek", &file_providers, &config_providers), "providers.toml");
+        assert_eq!(
+            ProviderStore::get_provider_source("deepseek", &file_providers, &config_providers),
+            "providers.toml"
+        );
 
         // config.toml 覆盖的内置 provider
-        assert_eq!(ProviderStore::get_provider_source("kimi-coding", &file_providers, &config_providers), "config.toml");
+        assert_eq!(
+            ProviderStore::get_provider_source("kimi-coding", &file_providers, &config_providers),
+            "config.toml"
+        );
 
         // 未知 provider
-        assert_eq!(ProviderStore::get_provider_source("unknown", &file_providers, &config_providers), "未知");
+        assert_eq!(
+            ProviderStore::get_provider_source("unknown", &file_providers, &config_providers),
+            "未知"
+        );
     }
 }

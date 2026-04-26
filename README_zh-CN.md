@@ -151,8 +151,11 @@ cct use my-deepseek
 
 ### 运行 Claude Code
 ```bash
+# 使用当前配置运行 Claude Code
+cct run
+
 # 使用指定配置运行 Claude Code
-cct run <alias>
+cct run [alias]
 # 例如
 cct run my-deepseek
 

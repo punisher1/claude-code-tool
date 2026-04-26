@@ -5,7 +5,6 @@
 #Requires -Version 5.1
 
 # TLS 1.2 兼容
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 # 参数
 [CmdletBinding()]
@@ -17,12 +16,14 @@ param(
     [switch]$Help
 )
 
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
 # ── 常量 ──
 
 $Repo = "punisher1/claude-code-tool"
 $BinaryName = "cct.exe"
 $GitHubApiBase = "https://api.github.com/repos/$Repo/releases"
-$DefaultInstallDir = Join-Path $env:USERPROFILE ".cct\bin"
+$DefaultInstallDir = Join-Path $env:USERPROFILE ".local\bin"
 $ArtifactName = "cct-Windows-x86_64.zip"
 
 # ── 输出函数 ──
@@ -222,13 +223,22 @@ function Ensure-Path {
 
     # 持久化到用户环境变量
     $userPath = [System.Environment]::GetEnvironmentVariable("PATH", "User")
+    if ($null -eq $userPath) {
+        $userPath = ""
+    }
     if ($userPath -notlike "*$installDir*") {
-        [System.Environment]::SetEnvironmentVariable(
-            "PATH",
-            "$installDir$([System.IO.Path]::PathSeparator)$userPath",
-            "User"
-        )
-        Write-Info "Added $installDir to user PATH (persistent)."
+        try {
+            [System.Environment]::SetEnvironmentVariable(
+                "PATH",
+                "$installDir$([System.IO.Path]::PathSeparator)$userPath",
+                "User"
+            )
+            Write-Info "Added $installDir to user PATH (persistent)."
+        } catch {
+            Write-Warn "Could not update user PATH automatically: $_"
+            Write-Warn "Add this directory to PATH manually: $installDir"
+            return
+        }
     }
 
     Write-Info "Added $installDir to PATH for this session."

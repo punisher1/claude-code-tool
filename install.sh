@@ -117,11 +117,7 @@ detect_platform() {
 
 determine_install_dir() {
     if [[ -z "$INSTALL_DIR" ]]; then
-        if [[ "$(id -u)" -eq 0 ]]; then
-            INSTALL_DIR="/usr/local/bin"
-        else
-            INSTALL_DIR="${HOME}/.local/bin"
-        fi
+        INSTALL_DIR="${HOME}/.local/bin"
     fi
     mkdir -p "$INSTALL_DIR"
 }
@@ -227,6 +223,47 @@ install_binary() {
 
 # ── 安装后验证 ──
 
+shell_profile_path() {
+    local shell_name
+    shell_name="$(basename "${SHELL:-}")"
+
+    case "$shell_name" in
+        zsh)  printf '%s\n' "${HOME}/.zshrc" ;;
+        bash) printf '%s\n' "${HOME}/.bashrc" ;;
+        *)    printf '%s\n' "${HOME}/.profile" ;;
+    esac
+}
+
+ensure_path() {
+    case ":${PATH}:" in
+        *":${INSTALL_DIR}:"*)
+            info "${INSTALL_DIR} is already in PATH."
+            return
+            ;;
+    esac
+
+    export PATH="${INSTALL_DIR}:${PATH}"
+
+    local profile
+    profile="$(shell_profile_path)"
+
+    if [[ -f "$profile" ]] && grep -Fq "$INSTALL_DIR" "$profile"; then
+        warn "${INSTALL_DIR} is already referenced in ${profile}. Open a new terminal if cct is not found."
+        return
+    fi
+
+    if {
+        printf '\n# Added by cct installer\n'
+        printf 'export PATH="%s:$PATH"\n' "$INSTALL_DIR"
+    } >> "$profile"; then
+        info "Added ${INSTALL_DIR} to ${profile}. Open a new terminal for it to take effect."
+    else
+        warn "Could not update PATH automatically."
+        warn "Add the following to your shell profile:"
+        warn "  export PATH=\"${INSTALL_DIR}:\$PATH\""
+    fi
+}
+
 verify_installation() {
     if command -v "$BINARY_NAME" >/dev/null 2>&1; then
         local installed_version
@@ -252,6 +289,7 @@ main() {
     download_artifacts
     verify_checksum
     install_binary
+    ensure_path
     verify_installation
 
     echo ""

@@ -19,14 +19,23 @@ impl ConfigManager {
         Self { config_path: path }
     }
 
+    fn home_dir() -> Result<PathBuf> {
+        #[cfg(test)]
+        if let Some(home_dir) = std::env::var_os("CCT_TEST_HOME") {
+            return Ok(PathBuf::from(home_dir));
+        }
+
+        dirs::home_dir().context("Failed to get home directory")
+    }
+
     pub fn get_config_path() -> Result<PathBuf> {
-        let home_dir = dirs::home_dir().context("Failed to get home directory")?;
+        let home_dir = Self::home_dir()?;
         Ok(home_dir.join(".cct").join("config.toml"))
     }
 
     /// 获取 providers.toml 文件路径 (~/.cct/providers.toml)
     pub fn get_providers_path() -> Result<PathBuf> {
-        let home_dir = dirs::home_dir().context("Failed to get home directory")?;
+        let home_dir = Self::home_dir()?;
         Ok(home_dir.join(".cct").join("providers.toml"))
     }
 

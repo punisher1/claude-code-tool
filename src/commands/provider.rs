@@ -52,14 +52,20 @@ fn list_providers(config: &AppConfig) -> Result<()> {
     // 加载 providers.toml
     let file_providers = ConfigManager::load_providers().unwrap_or_else(|_| HashMap::new());
 
-    let merged = ProviderStore::get_merged_providers_with_override(&config.providers, &file_providers);
+    let merged =
+        ProviderStore::get_merged_providers_with_override(&config.providers, &file_providers);
 
     let mut rows = Vec::new();
 
     for (name, provider) in &merged {
-        let provider_type = ProviderStore::get_provider_source(name, &file_providers, &config.providers).to_string();
+        let provider_type =
+            ProviderStore::get_provider_source(name, &file_providers, &config.providers)
+                .to_string();
 
-        let description = provider.description.clone().unwrap_or_else(|| "-".to_string());
+        let description = provider
+            .description
+            .clone()
+            .unwrap_or_else(|| "-".to_string());
 
         let base_url = if let Some(env) = &provider.env {
             env.get("ANTHROPIC_BASE_URL")
@@ -128,7 +134,10 @@ fn list_providers(config: &AppConfig) -> Result<()> {
 fn add_provider(config: &mut AppConfig, name: Option<String>) -> Result<()> {
     let name = match name {
         Some(n) => n,
-        None => match Input::<String>::new().with_prompt("Provider name").interact_text() {
+        None => match Input::<String>::new()
+            .with_prompt("Provider name")
+            .interact_text()
+        {
             Ok(n) => n,
             Err(e) => {
                 return Err(anyhow::anyhow!("Failed to read provider name: {}", e));
@@ -180,16 +189,25 @@ fn add_provider(config: &mut AppConfig, name: Option<String>) -> Result<()> {
     {
         Ok(url) => url,
         Err(e) => {
-            eprintln!("Warning: Failed to read input interactively ({}), using default", e);
+            eprintln!(
+                "Warning: Failed to read input interactively ({}), using default",
+                e
+            );
             "".to_string()
         }
     };
 
     // Get model
-    let model: String = match Input::<String>::new().with_prompt("Default Model").interact_text() {
+    let model: String = match Input::<String>::new()
+        .with_prompt("Default Model")
+        .interact_text()
+    {
         Ok(m) => m,
         Err(e) => {
-            eprintln!("Warning: Failed to read input interactively ({}), using default", e);
+            eprintln!(
+                "Warning: Failed to read input interactively ({}), using default",
+                e
+            );
             "".to_string()
         }
     };
@@ -202,7 +220,10 @@ fn add_provider(config: &mut AppConfig, name: Option<String>) -> Result<()> {
     {
         Ok(m) => m,
         Err(e) => {
-            eprintln!("Warning: Failed to read input interactively ({}), using default", e);
+            eprintln!(
+                "Warning: Failed to read input interactively ({}), using default",
+                e
+            );
             "".to_string()
         }
     };
@@ -215,7 +236,10 @@ fn add_provider(config: &mut AppConfig, name: Option<String>) -> Result<()> {
     {
         Ok(m) => m,
         Err(e) => {
-            eprintln!("Warning: Failed to read input interactively ({}), using default", e);
+            eprintln!(
+                "Warning: Failed to read input interactively ({}), using default",
+                e
+            );
             "".to_string()
         }
     };
@@ -228,7 +252,10 @@ fn add_provider(config: &mut AppConfig, name: Option<String>) -> Result<()> {
     {
         Ok(m) => m,
         Err(e) => {
-            eprintln!("Warning: Failed to read input interactively ({}), using default", e);
+            eprintln!(
+                "Warning: Failed to read input interactively ({}), using default",
+                e
+            );
             "".to_string()
         }
     };
@@ -239,7 +266,10 @@ fn add_provider(config: &mut AppConfig, name: Option<String>) -> Result<()> {
         "ANTHROPIC_BASE_URL".to_string(),
         crate::models::EnvValue::String(base_url),
     );
-    env.insert("ANTHROPIC_MODEL".to_string(), crate::models::EnvValue::String(model));
+    env.insert(
+        "ANTHROPIC_MODEL".to_string(),
+        crate::models::EnvValue::String(model),
+    );
     env.insert(
         "ANTHROPIC_DEFAULT_HAIKU_MODEL".to_string(),
         crate::models::EnvValue::String(haiku_model),
@@ -264,7 +294,11 @@ fn add_provider(config: &mut AppConfig, name: Option<String>) -> Result<()> {
     let manager = ConfigManager::new()?;
     manager.save_config(config)?;
 
-    println!("{} Provider '{}' added successfully!", style("✓").green(), name);
+    println!(
+        "{} Provider '{}' added successfully!",
+        style("✓").green(),
+        name
+    );
 
     Ok(())
 }
@@ -293,7 +327,11 @@ fn remove_provider(config: &mut AppConfig, name: String) -> Result<()> {
         let manager = ConfigManager::new()?;
         manager.save_config(config)?;
 
-        println!("{} Provider '{}' removed from config.toml successfully!", style("✓").green(), name);
+        println!(
+            "{} Provider '{}' removed from config.toml successfully!",
+            style("✓").green(),
+            name
+        );
         return Ok(());
     }
 
@@ -305,7 +343,11 @@ fn remove_provider(config: &mut AppConfig, name: String) -> Result<()> {
         updated.remove(&name);
         ConfigManager::save_providers(&updated)?;
 
-        println!("{} Provider '{}' removed from providers.toml successfully!", style("✓").green(), name);
+        println!(
+            "{} Provider '{}' removed from providers.toml successfully!",
+            style("✓").green(),
+            name
+        );
         return Ok(());
     }
 

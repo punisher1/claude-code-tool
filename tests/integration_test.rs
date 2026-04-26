@@ -9,7 +9,10 @@ fn test_provider_list_runs() {
         .expect("Failed to execute command");
 
     // 验证命令成功执行
-    assert!(output.status.success(), "provider list command should succeed");
+    assert!(
+        output.status.success(),
+        "provider list command should succeed"
+    );
 
     // 验证输出不为空
     assert!(!output.stdout.is_empty() || !output.stderr.is_empty());
@@ -48,10 +51,15 @@ fn test_provider_ls() {
         .expect("Failed to execute command");
 
     // 验证命令成功执行
-    assert!(output.status.success(), "provider ls command should succeed");
+    assert!(
+        output.status.success(),
+        "provider ls command should succeed"
+    );
 
     // 验证输出与 provider list 相同（包含内置提供商）
     let stdout = String::from_utf8_lossy(&output.stdout);
-    assert!(stdout.contains("deepseek") || stdout.contains("kimi-coding") || stdout.contains("zhipu"),
-            "provider ls should display at least one built-in provider");
+    assert!(
+        stdout.contains("deepseek") || stdout.contains("kimi-coding") || stdout.contains("zhipu"),
+        "provider ls should display at least one built-in provider"
+    );
 }

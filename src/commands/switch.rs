@@ -10,12 +10,23 @@ use console::style;
 use dialoguer::{Select, theme::ColorfulTheme};
 use std::collections::HashMap;
 
-
 pub struct UseCommand {
     pub alias: Option<String>,
 }
 
 pub struct ResetCommand;
+
+const PROVIDER_MANAGED_ENV_KEYS: &[&str] = &[
+    "ANTHROPIC_BASE_URL",
+    "ANTHROPIC_MODEL",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL",
+    "ANTHROPIC_AUTH_TOKEN",
+    "API_TIMEOUT_MS",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC",
+    "CLAUDE_CODE_EFFORT_LEVEL",
+];
 
 impl Command for UseCommand {
     fn execute(self, config: &mut AppConfig) -> Result<()> {
@@ -32,7 +43,9 @@ impl Command for UseCommand {
                 // Find current selection index (None is at index 0)
                 let current_index = match config.current.as_ref() {
                     Some(current) => {
-                        items.iter().position(|item| item == current)
+                        items
+                            .iter()
+                            .position(|item| item == current)
                             // .map(|i| i + 1) // +1 because None is at index 0
                             .unwrap_or(0)
                     }
@@ -66,16 +79,6 @@ impl Command for UseCommand {
             .get(&alias)
             .ok_or_else(|| anyhow!("Configuration '{}' not found", alias))?;
 
-        // Check if already using this configuration
-        if config.current.as_ref() == Some(&alias) {
-            println!(
-                "{} Configuration '{}' is already active",
-                style("!").yellow(),
-                style(&alias).yellow()
-            );
-            return Ok(());
-        }
-
         // Get merged providers
         let merged_providers = ProviderStore::get_merged_providers(&config.providers);
 
@@ -106,12 +109,16 @@ impl Command for UseCommand {
 
         // Add API key if provided
         if let Some(api_key) = &config_instance.api_key {
-            env_vars.insert("ANTHROPIC_AUTH_TOKEN".to_string(), EnvValue::String(api_key.clone()));
+            env_vars.insert(
+                "ANTHROPIC_AUTH_TOKEN".to_string(),
+                EnvValue::String(api_key.clone()),
+            );
         }
 
         // Update Claude settings (with backup)
         let settings_path = ClaudeAdapter::get_settings_path()?;
         backup_file(&settings_path, "settings", 5)?;
+        ClaudeAdapter::remove_env_keys(&settings_path, PROVIDER_MANAGED_ENV_KEYS)?;
         ClaudeAdapter::update_settings(&settings_path, env_vars)?;
 
         // Update current configuration
@@ -144,20 +151,10 @@ impl Command for UseCommand {
 impl UseCommand {
     /// Clear all provider settings from Claude settings
     fn clear_settings(self, config: &mut AppConfig) -> Result<()> {
-        // Check if already cleared
-        if config.current.is_none() {
-            println!(
-                "{} Already cleared all provider settings",
-                style("!").yellow()
-            );
-            return Ok(());
-        }
-
-        // Update Claude settings with empty env (with backup)
+        // Remove only provider-managed env vars from Claude settings.
         let settings_path = ClaudeAdapter::get_settings_path()?;
         backup_file(&settings_path, "settings", 5)?;
-        let empty_env = HashMap::new();
-        ClaudeAdapter::update_settings(&settings_path, empty_env)?;
+        ClaudeAdapter::remove_env_keys(&settings_path, PROVIDER_MANAGED_ENV_KEYS)?;
 
         // Clear current configuration
         config.current = None;
@@ -166,10 +163,7 @@ impl UseCommand {
         let manager = ConfigManager::new()?;
         manager.save_config(config)?;
 
-        println!(
-            "{} Cleared all provider settings",
-            style("✓").green()
-        );
+        println!("{} Cleared all provider settings", style("✓").green());
 
         Ok(())
     }
@@ -184,12 +178,24 @@ impl Command for ResetCommand {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use crate::commands::Command;
+    use crate::models::{AppConfig, ConfigInstance};
+    use serde_json::Value;
     use std::collections::HashMap;
+    use std::fs;
+    use std::sync::Mutex;
+    use tempfile::TempDir;
+
+    static HOME_ENV_LOCK: Mutex<()> = Mutex::new(());
 
     #[test]
     fn test_env_var_merging() {
         let mut provider_env = HashMap::new();
-        provider_env.insert("ANTHROPIC_BASE_URL".to_string(), "https://provider.com".to_string());
+        provider_env.insert(
+            "ANTHROPIC_BASE_URL".to_string(),
+            "https://provider.com".to_string(),
+        );
         provider_env.insert("ANTHROPIC_MODEL".to_string(), "provider-model".to_string());
 
         let mut config_env = HashMap::new();
@@ -201,9 +207,169 @@ mod tests {
         merged.extend(config_env); // Override with config env
         merged.insert("ANTHROPIC_API_KEY".to_string(), "test-key".to_string()); // Add API key
 
-        assert_eq!(merged.get("ANTHROPIC_BASE_URL"), Some(&"https://provider.com".to_string()));
-        assert_eq!(merged.get("ANTHROPIC_MODEL"), Some(&"config-model".to_string())); // Config overrides provider
+        assert_eq!(
+            merged.get("ANTHROPIC_BASE_URL"),
+            Some(&"https://provider.com".to_string())
+        );
+        assert_eq!(
+            merged.get("ANTHROPIC_MODEL"),
+            Some(&"config-model".to_string())
+        ); // Config overrides provider
         assert_eq!(merged.get("CUSTOM_VAR"), Some(&"custom-value".to_string()));
-        assert_eq!(merged.get("ANTHROPIC_API_KEY"), Some(&"test-key".to_string()));
+        assert_eq!(
+            merged.get("ANTHROPIC_API_KEY"),
+            Some(&"test-key".to_string())
+        );
+    }
+
+    #[test]
+    fn test_use_reapplies_active_config_from_providers_toml() -> anyhow::Result<()> {
+        let _guard = HOME_ENV_LOCK.lock().unwrap();
+        let temp_dir = TempDir::new()?;
+        let cct_dir = temp_dir.path().join(".cct");
+        let claude_dir = temp_dir.path().join(".claude");
+        fs::create_dir_all(&cct_dir)?;
+        fs::create_dir_all(&claude_dir)?;
+
+        fs::write(
+            cct_dir.join("providers.toml"),
+            r#"
+[deepseek]
+description = "DeepSeek API"
+
+[deepseek.env]
+ANTHROPIC_BASE_URL = "https://api.deepseek.com/anthropic"
+ANTHROPIC_MODEL = "file-model"
+"#,
+        )?;
+        fs::write(
+            claude_dir.join("settings.json"),
+            r#"{
+                "env": {
+                    "ANTHROPIC_MODEL": "old-model",
+                    "ANTHROPIC_DEFAULT_OPUS_MODEL": "stale-opus",
+                    "CLAUDE_CODE_EFFORT_LEVEL": "stale-effort",
+                    "CUSTOM_VAR": "keep-me"
+                }
+            }"#,
+        )?;
+
+        let old_test_home = std::env::var_os("CCT_TEST_HOME");
+        unsafe {
+            std::env::set_var("CCT_TEST_HOME", temp_dir.path());
+        }
+
+        let mut configs = HashMap::new();
+        configs.insert(
+            "deepseek".to_string(),
+            ConfigInstance {
+                provider: "deepseek".to_string(),
+                api_key: None,
+                env: None,
+            },
+        );
+        let mut config = AppConfig {
+            providers: HashMap::new(),
+            configs,
+            current: Some("deepseek".to_string()),
+        };
+
+        let result = UseCommand {
+            alias: Some("deepseek".to_string()),
+        }
+        .execute(&mut config);
+
+        unsafe {
+            match old_test_home {
+                Some(value) => std::env::set_var("CCT_TEST_HOME", value),
+                None => std::env::remove_var("CCT_TEST_HOME"),
+            }
+        }
+
+        result?;
+
+        let settings: Value =
+            serde_json::from_str(&fs::read_to_string(claude_dir.join("settings.json"))?)?;
+        assert_eq!(settings["env"]["ANTHROPIC_MODEL"], "file-model");
+        assert_eq!(settings["env"]["CUSTOM_VAR"], "keep-me");
+        assert!(
+            settings["env"]
+                .get("ANTHROPIC_DEFAULT_OPUS_MODEL")
+                .is_none()
+        );
+        assert!(settings["env"].get("CLAUDE_CODE_EFFORT_LEVEL").is_none());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_reset_only_removes_provider_managed_env_vars() -> anyhow::Result<()> {
+        let _guard = HOME_ENV_LOCK.lock().unwrap();
+        let temp_dir = TempDir::new()?;
+        let claude_dir = temp_dir.path().join(".claude");
+        fs::create_dir_all(&claude_dir)?;
+
+        fs::write(
+            claude_dir.join("settings.json"),
+            r#"{
+                "env": {
+                    "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
+                    "ANTHROPIC_MODEL": "deepseek-v4-pro",
+                    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek-v4-flash",
+                    "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek-v4-pro",
+                    "ANTHROPIC_DEFAULT_OPUS_MODEL": "deepseek-v4-pro",
+                    "API_TIMEOUT_MS": 3000000,
+                    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": 1,
+                    "CLAUDE_CODE_EFFORT_LEVEL": "max",
+                    "CUSTOM_VAR": "keep-me",
+                    "ANTHROPIC_AUTH_TOKEN": "keep-token"
+                },
+                "theme": "dark"
+            }"#,
+        )?;
+
+        let old_test_home = std::env::var_os("CCT_TEST_HOME");
+        unsafe {
+            std::env::set_var("CCT_TEST_HOME", temp_dir.path());
+        }
+
+        let mut config = AppConfig {
+            providers: HashMap::new(),
+            configs: HashMap::new(),
+            current: Some("deepseek".to_string()),
+        };
+
+        let result = ResetCommand.execute(&mut config);
+
+        unsafe {
+            match old_test_home {
+                Some(value) => std::env::set_var("CCT_TEST_HOME", value),
+                None => std::env::remove_var("CCT_TEST_HOME"),
+            }
+        }
+
+        result?;
+
+        let settings: Value =
+            serde_json::from_str(&fs::read_to_string(claude_dir.join("settings.json"))?)?;
+        let env = settings["env"].as_object().unwrap();
+
+        assert!(!env.contains_key("ANTHROPIC_BASE_URL"));
+        assert!(!env.contains_key("ANTHROPIC_MODEL"));
+        assert!(!env.contains_key("ANTHROPIC_DEFAULT_HAIKU_MODEL"));
+        assert!(!env.contains_key("ANTHROPIC_DEFAULT_SONNET_MODEL"));
+        assert!(!env.contains_key("ANTHROPIC_DEFAULT_OPUS_MODEL"));
+        assert!(!env.contains_key("API_TIMEOUT_MS"));
+        assert!(!env.contains_key("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC"));
+        assert!(!env.contains_key("CLAUDE_CODE_EFFORT_LEVEL"));
+        assert_eq!(
+            env.get("CUSTOM_VAR").and_then(|value| value.as_str()),
+            Some("keep-me")
+        );
+        assert!(!env.contains_key("ANTHROPIC_AUTH_TOKEN"));
+        assert_eq!(settings["theme"].as_str(), Some("dark"));
+        assert_eq!(config.current, None);
+
+        Ok(())
     }
 }

@@ -16,8 +16,17 @@ struct ClaudeSettings {
 pub struct ClaudeAdapter;
 
 impl ClaudeAdapter {
+    fn home_dir() -> Result<PathBuf> {
+        #[cfg(test)]
+        if let Some(home_dir) = std::env::var_os("CCT_TEST_HOME") {
+            return Ok(PathBuf::from(home_dir));
+        }
+
+        dirs::home_dir().context("Failed to get home directory")
+    }
+
     pub fn get_settings_path() -> Result<PathBuf> {
-        let home_dir = dirs::home_dir().context("Failed to get home directory")?;
+        let home_dir = Self::home_dir()?;
         Ok(home_dir.join(".claude").join("settings.json"))
     }
 
@@ -41,10 +50,45 @@ impl ClaudeAdapter {
             .map(|(k, v)| (k, v.to_json_value()))
             .collect();
 
-        // Update env field
-        settings.env = Some(json_env);
+        // Merge env field instead of replacing unrelated user settings.
+        let mut merged_env = settings.env.unwrap_or_default();
+        merged_env.extend(json_env);
+        settings.env = Some(merged_env);
 
         // Write back to file
+        let content = serde_json::to_string_pretty(&settings)
+            .context("Failed to serialize settings to JSON")?;
+
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent)
+                .with_context(|| format!("Failed to create settings directory: {:?}", parent))?;
+        }
+
+        fs::write(path, content)
+            .with_context(|| format!("Failed to write settings file: {:?}", path))?;
+
+        Ok(())
+    }
+
+    pub fn remove_env_keys(path: &Path, keys: &[&str]) -> Result<()> {
+        let mut settings = if path.exists() {
+            let content = fs::read_to_string(path)
+                .with_context(|| format!("Failed to read settings file: {:?}", path))?;
+            serde_json::from_str(&content)
+                .with_context(|| format!("Failed to parse settings JSON: {:?}", path))?
+        } else {
+            ClaudeSettings {
+                env: None,
+                other: HashMap::new(),
+            }
+        };
+
+        if let Some(env) = settings.env.as_mut() {
+            for key in keys {
+                env.remove(*key);
+            }
+        }
+
         let content = serde_json::to_string_pretty(&settings)
             .context("Failed to serialize settings to JSON")?;
 
@@ -84,8 +128,14 @@ mod tests {
 
         // Update with new env vars
         let mut new_env = HashMap::new();
-        new_env.insert("ANTHROPIC_API_KEY".to_string(), EnvValue::String("new-key-123".to_string()));
-        new_env.insert("CUSTOM_VAR".to_string(), EnvValue::String("custom-value".to_string()));
+        new_env.insert(
+            "ANTHROPIC_API_KEY".to_string(),
+            EnvValue::String("new-key-123".to_string()),
+        );
+        new_env.insert(
+            "CUSTOM_VAR".to_string(),
+            EnvValue::String("custom-value".to_string()),
+        );
 
         ClaudeAdapter::update_settings(&settings_path, new_env)?;
 

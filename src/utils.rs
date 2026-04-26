@@ -15,10 +15,7 @@ pub fn backup_file(file_path: &Path, prefix: &str, max_backups: usize) -> Result
         .context("Failed to get parent directory")?;
 
     // 获取文件扩展名
-    let extension = file_path
-        .extension()
-        .and_then(|e| e.to_str())
-        .unwrap_or("");
+    let extension = file_path.extension().and_then(|e| e.to_str()).unwrap_or("");
 
     // 生成备份文件名：prefix_YYYYMMDDHHMMSS.ext
     let timestamp = Local::now().format("%Y%m%d%H%M%S");
