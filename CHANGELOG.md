@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.8]
+
+### Added
+- `runx` subcommand: Launch Claude Code with the specified config but skip its permission system.
+- `self-update` command: Download and install the latest release from GitHub.
+- Cross-platform install scripts (`install.sh`, `install.ps1`) for automated setup.
+- GitHub Actions release workflow triggered by version tags.
+
+### Changed
+- Refactored `run` command internals for better maintainability.
+
 ## [0.1.7]
 
 ### Added
