@@ -162,6 +162,11 @@ cct run my-deepseek
 # 运行并传递参数给 claude
 cct run my-deepseek -- -p "hello claude"
 
+# 跳过 Claude 权限检查运行
+cct runx my-deepseek
+# 等价于：
+cct run my-deepseek -- --allow-dangerously-skip-permissions
+
 # 运行并设置代理
 cct run my-deepseek --proxy "http://127.0.0.1:11225"
 ```

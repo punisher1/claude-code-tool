@@ -6,11 +6,12 @@ mod provider_store;
 mod utils;
 
 use anyhow::Result;
-use clap::{Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 use commands::{
     AddCommand, Command, ListCommand, ProviderCommand, ResetCommand, RmCommand, RunCommand,
     UpdateCommand, UseCommand,
 };
+use models::AppConfig;
 use config_manager::ConfigManager;
 
 #[derive(Parser)]
@@ -69,18 +70,34 @@ enum Commands {
     },
 
     /// Run Claude Code with a configuration
-    Run {
-        /// Configuration alias (optional, defaults to current configuration)
-        alias: Option<String>,
+    Run(RunArgs),
 
-        /// HTTP/HTTPS proxy URL (e.g., http://127.0.0.1:11225)
-        #[arg(long)]
-        proxy: Option<String>,
+    /// Run Claude Code with dangerously skipped permissions
+    Runx(RunArgs),
+}
 
-        /// Arguments to pass to claude (after --)
-        #[arg(last = true, allow_hyphen_values = true)]
-        claude_args: Vec<String>,
-    },
+#[derive(Args)]
+struct RunArgs {
+    /// Configuration alias (optional, defaults to current configuration)
+    alias: Option<String>,
+
+    /// HTTP/HTTPS proxy URL (e.g., http://127.0.0.1:11225)
+    #[arg(long)]
+    proxy: Option<String>,
+
+    /// Arguments to pass to claude (after --)
+    #[arg(last = true, allow_hyphen_values = true)]
+    claude_args: Vec<String>,
+}
+
+fn run_command(args: RunArgs, dangerously_skip_permissions: bool, config: &mut AppConfig) -> Result<()> {
+    RunCommand {
+        alias: args.alias,
+        proxy: args.proxy,
+        claude_args: args.claude_args,
+        dangerously_skip_permissions,
+    }
+    .execute(config)
 }
 
 #[derive(Subcommand)]
@@ -157,18 +174,8 @@ fn main() -> Result<()> {
             let cmd = RmCommand { alias };
             cmd.execute(&mut config)?;
         }
-        Commands::Run {
-            alias,
-            proxy,
-            claude_args,
-        } => {
-            let cmd = RunCommand {
-                alias,
-                proxy,
-                claude_args,
-            };
-            cmd.execute(&mut config)?;
-        }
+        Commands::Run(args) => run_command(args, false, &mut config)?,
+        Commands::Runx(args) => run_command(args, true, &mut config)?,
     }
 
     Ok(())

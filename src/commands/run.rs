@@ -9,15 +9,19 @@ use std::path::{Path, PathBuf};
 use std::process::{Command as ProcessCommand, Stdio};
 use std::time::{SystemTime, UNIX_EPOCH};
 
+const SKIP_PERMISSIONS_ARG: &str = "--allow-dangerously-skip-permissions";
+
 pub struct RunCommand {
     pub alias: Option<String>,
     pub proxy: Option<String>,
     pub claude_args: Vec<String>,
+    pub dangerously_skip_permissions: bool,
 }
 
 impl Command for RunCommand {
     fn execute(self, config: &mut AppConfig) -> Result<()> {
         let prepared = prepare_run(&self, config)?;
+        let claude_args = claude_args_for_process(self);
 
         println!("{} Starting Claude Code...", style(">").cyan());
         println!("  Config: {}", style(&prepared.alias).bold());
@@ -29,8 +33,8 @@ impl Command for RunCommand {
         if let Some(model) = prepared.env_vars.get("ANTHROPIC_MODEL") {
             println!("  Model: {}", style(model).cyan());
         }
-        if !self.claude_args.is_empty() {
-            println!("  Args: {}", style(self.claude_args.join(" ")).dim());
+        if !claude_args.is_empty() {
+            println!("  Args: {}", style(claude_args.join(" ")).dim());
         }
         println!();
 
@@ -38,7 +42,7 @@ impl Command for RunCommand {
         let mut cmd = ProcessCommand::new("claude");
 
         cmd.arg("--settings").arg(&settings_path);
-        cmd.args(&self.claude_args);
+        cmd.args(&claude_args);
 
         for (key, value) in &prepared.env_vars {
             cmd.env(key, value.to_string());
@@ -69,6 +73,15 @@ impl Command for RunCommand {
             std::process::exit(status.code().unwrap_or(1));
         }
     }
+}
+
+fn claude_args_for_process(mut command: RunCommand) -> Vec<String> {
+    if command.dangerously_skip_permissions
+        && !command.claude_args.iter().any(|arg| arg == SKIP_PERMISSIONS_ARG)
+    {
+        command.claude_args.push(SKIP_PERMISSIONS_ARG.to_string());
+    }
+    command.claude_args
 }
 
 #[derive(Debug, PartialEq)]
@@ -233,6 +246,7 @@ mod tests {
             alias: Some("session".to_string()),
             proxy: None,
             claude_args: vec![],
+            dangerously_skip_permissions: false,
         };
         let prepared = prepare_run(&command, &config).expect("run preparation should succeed");
 
@@ -291,6 +305,7 @@ mod tests {
             alias: Some("session".to_string()),
             proxy: None,
             claude_args: vec![],
+            dangerously_skip_permissions: false,
         };
 
         let prepared = prepare_run(&command, &config).expect("run preparation should succeed");
@@ -359,6 +374,7 @@ mod tests {
             alias: Some("target".to_string()),
             proxy: None,
             claude_args: vec![],
+            dangerously_skip_permissions: false,
         };
 
         let prepared = prepare_run(&command, &config).expect("run preparation should succeed");
@@ -418,6 +434,7 @@ mod tests {
             alias: None,
             proxy: None,
             claude_args: vec![],
+            dangerously_skip_permissions: false,
         };
 
         let prepared = prepare_run(&command, &config).expect("run preparation should succeed");
@@ -445,6 +462,7 @@ mod tests {
             alias: None,
             proxy: None,
             claude_args: vec![],
+            dangerously_skip_permissions: false,
         };
 
         let error = prepare_run(&command, &config).expect_err("run preparation should fail");
@@ -477,6 +495,45 @@ mod tests {
                     "CLAUDE_CODE_USE_BEDROCK": true
                 }
             })
+        );
+    }
+
+    #[test]
+    fn test_runx_adds_skip_permissions_arg() {
+        let command = RunCommand {
+            alias: Some("session".to_string()),
+            proxy: None,
+            claude_args: vec!["--print".to_string()],
+            dangerously_skip_permissions: true,
+        };
+
+        assert_eq!(
+            claude_args_for_process(command),
+            vec![
+                "--print".to_string(),
+                "--allow-dangerously-skip-permissions".to_string()
+            ]
+        );
+    }
+
+    #[test]
+    fn test_runx_does_not_duplicate_skip_permissions_arg() {
+        let command = RunCommand {
+            alias: Some("session".to_string()),
+            proxy: None,
+            claude_args: vec![
+                "--allow-dangerously-skip-permissions".to_string(),
+                "--print".to_string(),
+            ],
+            dangerously_skip_permissions: true,
+        };
+
+        assert_eq!(
+            claude_args_for_process(command),
+            vec![
+                "--allow-dangerously-skip-permissions".to_string(),
+                "--print".to_string()
+            ]
         );
     }
 }

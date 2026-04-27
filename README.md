@@ -162,6 +162,11 @@ cct run my-deepseek
 # Run and pass arguments to claude
 cct run my-deepseek -- -p "hello claude"
 
+# Run with Claude permissions checks skipped
+cct runx my-deepseek
+# Equivalent to:
+cct run my-deepseek -- --allow-dangerously-skip-permissions
+
 # Run and set proxy
 cct run my-deepseek --proxy "http://127.0.0.1:11225"
 ```
