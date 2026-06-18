@@ -24,15 +24,19 @@ lazy_static! {
                 name: "deepseek",
                 description: "DeepSeek API",
                 base_url: "https://api.deepseek.com/anthropic",
-                model: "deepseek-v4-pro",
+                model: "deepseek-v4-pro[1m]",
                 haiku_model: "deepseek-v4-flash",
-                sonnet_model: "deepseek-v4-pro",
-                opus_model: "deepseek-v4-pro",
+                sonnet_model: "deepseek-v4-pro[1m]",
+                opus_model: "deepseek-v4-pro[1m]",
                 env: Some({
                     let mut env = HashMap::new();
                     env.insert(
                         "CLAUDE_CODE_EFFORT_LEVEL",
                         crate::models::EnvValue::String("max".to_string()),
+                    );
+                    env.insert(
+                        "CLAUDE_CODE_SUBAGENT_MODEL",
+                        crate::models::EnvValue::String("deepseek-v4-flash".to_string()),
                     );
                     env
                 }),
@@ -51,11 +55,18 @@ lazy_static! {
                 name: "zhipu",
                 description: "Zhipu GLM Coding",
                 base_url: "https://open.bigmodel.cn/api/anthropic",
-                model: "glm-5.1",
+                model: "glm-5.2[1m]",
                 haiku_model: "glm-4.5-air",
-                sonnet_model: "glm-5.1",
-                opus_model: "glm-5.1",
-                env: None,
+                sonnet_model: "glm-5.2[1m]",
+                opus_model: "glm-5.2[1m]",
+                env: Some({
+                    let mut env = HashMap::new();
+                    env.insert(
+                        "CLAUDE_CODE_AUTO_COMPACT_WINDOW",
+                        crate::models::EnvValue::String("1000000".to_string()),
+                    );
+                    env
+                }),
             },
             ProviderDef {
                 name: "xiaomi-mimo",
@@ -227,7 +238,7 @@ mod tests {
 
         assert_eq!(
             env.get("ANTHROPIC_MODEL"),
-            Some(&EnvValue::String("deepseek-v4-pro".to_string()))
+            Some(&EnvValue::String("deepseek-v4-pro[1m]".to_string()))
         );
         assert_eq!(
             env.get("ANTHROPIC_DEFAULT_HAIKU_MODEL"),
@@ -235,15 +246,47 @@ mod tests {
         );
         assert_eq!(
             env.get("ANTHROPIC_DEFAULT_SONNET_MODEL"),
-            Some(&EnvValue::String("deepseek-v4-pro".to_string()))
+            Some(&EnvValue::String("deepseek-v4-pro[1m]".to_string()))
         );
         assert_eq!(
             env.get("ANTHROPIC_DEFAULT_OPUS_MODEL"),
-            Some(&EnvValue::String("deepseek-v4-pro".to_string()))
+            Some(&EnvValue::String("deepseek-v4-pro[1m]".to_string()))
         );
         assert_eq!(
             env.get("CLAUDE_CODE_EFFORT_LEVEL"),
             Some(&EnvValue::String("max".to_string()))
+        );
+        assert_eq!(
+            env.get("CLAUDE_CODE_SUBAGENT_MODEL"),
+            Some(&EnvValue::String("deepseek-v4-flash".to_string()))
+        );
+    }
+
+    #[test]
+    fn test_zhipu_builtin_models_follow_current_api_docs() {
+        let providers = ProviderStore::get_builtin_providers();
+        let zhipu = providers.get("zhipu").unwrap();
+        let env = zhipu.env.as_ref().unwrap();
+
+        assert_eq!(
+            env.get("ANTHROPIC_MODEL"),
+            Some(&EnvValue::String("glm-5.2[1m]".to_string()))
+        );
+        assert_eq!(
+            env.get("ANTHROPIC_DEFAULT_HAIKU_MODEL"),
+            Some(&EnvValue::String("glm-4.5-air".to_string()))
+        );
+        assert_eq!(
+            env.get("ANTHROPIC_DEFAULT_SONNET_MODEL"),
+            Some(&EnvValue::String("glm-5.2[1m]".to_string()))
+        );
+        assert_eq!(
+            env.get("ANTHROPIC_DEFAULT_OPUS_MODEL"),
+            Some(&EnvValue::String("glm-5.2[1m]".to_string()))
+        );
+        assert_eq!(
+            env.get("CLAUDE_CODE_AUTO_COMPACT_WINDOW"),
+            Some(&EnvValue::String("1000000".to_string()))
         );
     }
 

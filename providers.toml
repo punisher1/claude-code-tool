@@ -14,12 +14,14 @@ ANTHROPIC_BASE_URL = "https://api.anthropic.com"
 description = "DeepSeek API"
 [deepseek.env]
 ANTHROPIC_BASE_URL = "https://api.deepseek.com/anthropic"
-ANTHROPIC_MODEL = "deepseek-v4-pro"
+ANTHROPIC_MODEL = "deepseek-v4-pro[1m]"
 ANTHROPIC_DEFAULT_HAIKU_MODEL = "deepseek-v4-flash"
-ANTHROPIC_DEFAULT_SONNET_MODEL = "deepseek-v4-pro"
-ANTHROPIC_DEFAULT_OPUS_MODEL = "deepseek-v4-pro"
+ANTHROPIC_DEFAULT_SONNET_MODEL = "deepseek-v4-pro[1m]"
+ANTHROPIC_DEFAULT_OPUS_MODEL = "deepseek-v4-pro[1m]"
 API_TIMEOUT_MS = 3000000
 CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = 1
+CLAUDE_CODE_EFFORT_LEVEL = "max"
+CLAUDE_CODE_SUBAGENT_MODEL = "deepseek-v4-flash"
 
 [kimi-coding]
 description = "Kimi Coding"
@@ -36,12 +38,13 @@ CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = 1
 description = "Zhipu GLM Coding"
 [zhipu.env]
 ANTHROPIC_BASE_URL = "https://open.bigmodel.cn/api/anthropic"
-ANTHROPIC_MODEL = "glm-5.1"
+ANTHROPIC_MODEL = "glm-5.2[1m]"
 ANTHROPIC_DEFAULT_HAIKU_MODEL = "glm-4.5-air"
-ANTHROPIC_DEFAULT_SONNET_MODEL = "glm-5.1"
-ANTHROPIC_DEFAULT_OPUS_MODEL = "glm-5.1"
+ANTHROPIC_DEFAULT_SONNET_MODEL = "glm-5.2[1m]"
+ANTHROPIC_DEFAULT_OPUS_MODEL = "glm-5.2[1m]"
 API_TIMEOUT_MS = 3000000
 CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = 1
+CLAUDE_CODE_AUTO_COMPACT_WINDOW = "1000000"
 
 [xiaomi-mimo]
 description = "Xiaomi Mimo Coding"

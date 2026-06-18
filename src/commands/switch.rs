@@ -26,6 +26,8 @@ const PROVIDER_MANAGED_ENV_KEYS: &[&str] = &[
     "API_TIMEOUT_MS",
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC",
     "CLAUDE_CODE_EFFORT_LEVEL",
+    "CLAUDE_CODE_SUBAGENT_MODEL",
+    "CLAUDE_CODE_AUTO_COMPACT_WINDOW",
 ];
 
 impl Command for UseCommand {
@@ -321,6 +323,8 @@ ANTHROPIC_MODEL = "file-model"
                     "API_TIMEOUT_MS": 3000000,
                     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": 1,
                     "CLAUDE_CODE_EFFORT_LEVEL": "max",
+                    "CLAUDE_CODE_SUBAGENT_MODEL": "deepseek-v4-flash",
+                    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "1000000",
                     "CUSTOM_VAR": "keep-me",
                     "ANTHROPIC_AUTH_TOKEN": "keep-token"
                 },
@@ -362,6 +366,8 @@ ANTHROPIC_MODEL = "file-model"
         assert!(!env.contains_key("API_TIMEOUT_MS"));
         assert!(!env.contains_key("CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC"));
         assert!(!env.contains_key("CLAUDE_CODE_EFFORT_LEVEL"));
+        assert!(!env.contains_key("CLAUDE_CODE_SUBAGENT_MODEL"));
+        assert!(!env.contains_key("CLAUDE_CODE_AUTO_COMPACT_WINDOW"));
         assert_eq!(
             env.get("CUSTOM_VAR").and_then(|value| value.as_str()),
             Some("keep-me")
