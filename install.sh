@@ -15,6 +15,7 @@ REQUESTED_VERSION=""
 INSTALL_DIR=""
 CURL_PROXY="${HTTPS_PROXY:-${https_proxy:-}}"
 SKIP_CHECKSUM=0
+CHECKSUM_OK=0  # checksum 是否成功获取且可用，0=否（降级跳过校验）
 
 # ── 输出函数 ──
 
@@ -157,25 +158,43 @@ download_artifacts() {
 
     ARCHIVE_PATH="${TEMP_DIR}/${ARTIFACT_NAME}"
     CHECKSUM_PATH="${TEMP_DIR}/${ARTIFACT_NAME}.sha256"
+    CHECKSUM_OK=0
 
+    # archive 是必需的：下载失败/为空 → 明确报错（带 URL）
     info "Downloading ${ARTIFACT_NAME}..."
-    download "$archive_url" "$ARCHIVE_PATH"
+    download "$archive_url" "$ARCHIVE_PATH" \
+        || error "Failed to download ${archive_url}"
+    [[ -s "$ARCHIVE_PATH" ]] \
+        || error "Downloaded archive is empty or missing: ${ARCHIVE_PATH}"
 
+    # checksum 是可选的：下载/文件失败 → 置 CHECKSUM_OK=0 并 warn，不中断安装
+    # 用 [[ -s ]] 立即检查文件存在且非空，可捕获「curl 报成功但文件读不到」的场景
     if [[ "$SKIP_CHECKSUM" != "1" ]]; then
         info "Downloading checksum..."
-        download "$checksum_url" "$CHECKSUM_PATH"
+        if download "$checksum_url" "$CHECKSUM_PATH" 2>/dev/null \
+           && [[ -s "$CHECKSUM_PATH" ]]; then
+            CHECKSUM_OK=1
+        else
+            warn "Could not download checksum; skipping verification."
+        fi
     fi
 }
 
 verify_checksum() {
-    if [[ "$SKIP_CHECKSUM" == "1" ]]; then
-        warn "Checksum verification skipped."
+    # 未启用校验、或 checksum 未成功获取 → 降级跳过（与 cct update 行为一致）
+    if [[ "$SKIP_CHECKSUM" == "1" || "$CHECKSUM_OK" != "1" ]]; then
+        warn "Skipping checksum verification."
         return
     fi
 
+    [[ -f "$CHECKSUM_PATH" ]] || { warn "Checksum file missing; skipping."; return; }
+
     local expected_hash actual_hash
     expected_hash=$(awk '{print $1}' "$CHECKSUM_PATH")
-    [[ -z "$expected_hash" ]] && error "Could not read expected checksum."
+    if [[ -z "$expected_hash" ]]; then
+        warn "Could not read expected checksum; skipping."
+        return
+    fi
 
     if command -v sha256sum >/dev/null 2>&1; then
         actual_hash=$(sha256sum "$ARCHIVE_PATH" | awk '{print $1}')
@@ -187,10 +206,10 @@ verify_checksum() {
     fi
 
     if [[ "$actual_hash" != "$expected_hash" ]]; then
-        error "Checksum mismatch!
-  Expected: ${expected_hash}
-  Got:      ${actual_hash}
-  The downloaded file may be corrupted."
+        # 降级：不中断安装，仅警告（与 cct update 一致）
+        warn "Checksum mismatch (expected ${expected_hash}, got ${actual_hash})."
+        warn "The archive may be corrupted or tampered; proceeding anyway."
+        return
     fi
 
     info "Checksum verified."
